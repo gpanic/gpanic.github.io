@@ -240,15 +240,15 @@ a.project-banner
 	font-size: 20px;
 }
 
-.code-samples .title
+.code-samples .header
 {
 	margin-top: 50px;
-	margin-bottom: 50px;
+	margin-bottom: 20px;
 	background-color:white;
 	border-radius: 5;
 }
 
-.code-samples .title .number
+.code-samples .header .number
 {
 	display: inline-block;
 	background-color: #333333;
@@ -262,7 +262,7 @@ a.project-banner
 	transition: background-color 0.2s ease;
 }
 
-.code-samples .title .description
+.code-samples .header .name
 {
 	display: inline-block;
 	font-size: 20px;
@@ -271,7 +271,7 @@ a.project-banner
 	padding: 10px;
 }
 
-.code-samples .title .back
+.code-samples .header .back
 {
 	float:right;
 	color:white;
@@ -281,7 +281,7 @@ a.project-banner
 	right: 15px;
 }
 
-.code-samples .title .back a
+.code-samples .header .back a
 {
 	color: white;
 	border: none;
@@ -291,8 +291,18 @@ a.project-banner
 	border-radius: 5px;
 }
 
-.code-samples .title .back a:hover
+.code-samples .header .back a:hover
 {
 	background-color: #404040;
 	border: none;
+}
+
+.code-samples .description
+{
+	margin-bottom: 50px;
+}
+
+.code-sample[class*='-6']:nth-child(2)
+{
+	
 }

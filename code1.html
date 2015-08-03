@@ -17,12 +17,206 @@
     <section class="code-samples">
       <div class="container">
         <div class="row">
-        <div class="title">
+        <div class="header">
           <div class="number">01</div>
-          <div class="description">A* path finding implementation.</div>
+          <div class="name">A* path finding implementation.</div>
           <div class="back"><a href="/">&laquo; Back</a></div>
         </div>
+        <div class="description">
+          <h3>Description</h3>
+          This is a simple AStar implementation I implemented for a programming challenge. It works on a map in form of a grid,
+          with marked start, goal and wall tiles. It finds the shortest path and prints an updated map.
+        </div>
+      </div>
 
+<div class="row">
+<div class="code-sample">
+<h3>Input and output</h3>
+<pre><code class="c++">WW..W...............            WW..W...............
+WWW.W....G.WW.......            WWW.W..**G.WW.......
+WWW.W...WWWWW.WWW...            WWW.W..*WWWWW.WWW...
+...............WW.W.            .......****....WW.W.
+..WWW...WW..WWWWW.WW            ..WWW...WW*.WWWWW.WW
+....W...W...WWWWW..W            ....W...W.*.WWWWW..W
+WW..W..WWW..WWWWW..W            WW..W..WWW*.WWWWW..W
+WW..W..WWW..W.......            WW..W..WWW*.W.......
+....W...............            ....W.....****......
+WWWWWWWWWWWWW..WWW.W            WWWWWWWWWWWWW*.WWW.W
+........W..........W            ........W.****.....W
+WWWW..WWWW..WW..WWWW            WWWW..WWWW*.WW..WWWW
+.............W..W...            ......*****..W..W...
+WW.WWW..WWW..W..W.WW            WW.WWW*.WWW..W..W.WW
+WW.W................            WW.W..*.............
+WW.....WWWWW..WWWWWW            WW....*WWWWW..WWWWWW
+W.......SW......WWW.            W.....**SW......WWW.
+WW.......WW.......W.            WW.......WW.......W.
+W........WW...WWWWW.            W........WW...WWWWW.
+..................W.            ..................W.
+                                Length: 32</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>Main.cpp</h3>
+<pre><code class="c++">#include "AStarDungeon.h"
+#include "AStar.h"
+
+// execute: astardungeon.exe map.txt
+int main(int argc, const char* argv[])
+{
+  if (argc &lt; 2)
+  {
+    std::cout &lt;&lt; "Pass the path to a valid map as the first argument." &lt;&lt; std::endl;
+    return 1;
+  }
+
+  AStarDungeon pathFinder;
+  if (!pathFinder.LoadMap(argv[1]))
+  {
+    std::cout &lt;&lt; "The provided map was invalid." &lt;&lt; std::endl;
+  }
+  pathFinder.MarkPathToGoal();
+  pathFinder.PrintMap();
+
+  std::cout &lt;&lt; "Length: " &lt;&lt; pathFinder.GetPathLength();
+
+  std::cin.get();
+  return 0;
+}</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>AStar.h</h3>
+<pre><code class="c++">#pragma once
+#include &lt;queue&gt;
+#include &lt;deque&gt;
+#include &lt;unordered_set&gt;
+#include &lt;unordered_map&gt;
+
+class AStar
+{
+public:
+  class Node
+  {
+  public:
+    int x, y;
+    float f; // estimated cost
+    float g; // actual cost to get here
+
+    Node();
+    Node(int x, int y);
+
+    bool operator==(const Node &node) const;
+    bool operator!=(const Node &node) const;
+
+    struct Hash
+    {
+      // use coordinates for equality, a simple noncommutative hash function
+      std::size_t operator()(const Node &node) const
+      {
+        return 3 * node.x + node.y;
+      }
+    };
+
+    struct GreaterByCost
+    {
+      bool operator()(const Node &lhs, const Node &rhs) const
+      {
+        return lhs.f &gt; rhs.f;
+      }
+    };
+  };
+
+protected:
+  std::vector&lt;Node&gt; FindPath(Node start, Node goal);
+  virtual std::vector&lt;Node&gt; GetSuccessors(const Node &node) const = 0;
+  virtual float HeuristicFunction(const Node &node1, const Node &node) const = 0;
+
+private:
+  std::deque&lt;Node&gt; openList; // nodes to visit
+  std::unordered_set&lt;Node, Node::Hash&gt; closedList; // visited nodes
+  std::unordered_map&lt;Node, Node, Node::Hash&gt; cameFrom; // travel between nodes
+
+  std::vector&lt;Node&gt; ReconstructPath(Node currentNode);
+};</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>AStar.cpp</h3>
+<pre><code class="c++">#include "AStar.h"
+
+AStar::Node::Node() : x(-1), y(-1) {}
+AStar::Node::Node(int x, int y) : x(x), y(y) {}
+
+bool AStar::Node::operator==(const Node &node) const
+{
+  return x == node.x && y == node.y;
+}
+
+bool AStar::Node::operator!=(const Node &node) const
+{
+  return !(*this == node);
+}
+
+// assumes monotonic heuristic, uses functions push_heap and pop_heap
+// to get the node with the smallest estimate
+std::vector&lt;AStar::Node&gt; AStar::FindPath(Node start, Node goal)
+{
+  start.f = start.g = 0;
+  openList.push_back(start);
+
+  Node currentNode;
+
+  while (!openList.empty())
+  {
+    std::pop_heap(openList.begin(), openList.end(), Node::GreaterByCost());
+    currentNode = openList.back();
+    openList.pop_back();
+    if (currentNode == goal) break;
+
+    closedList.insert(currentNode);
+    std::vector&lt;Node&gt; successors = GetSuccessors(currentNode);
+
+    for (Node successor : successors)
+    {
+      if (closedList.find(successor) != closedList.end()) continue;
+      cameFrom[successor] = currentNode;
+      successor.g = currentNode.g + 1; // we only move one tile at a time
+      successor.f = successor.g + HeuristicFunction(successor, goal);
+
+      if (std::find(openList.begin(), openList.end(), successor) == openList.end())
+      {
+        openList.push_back(successor);
+        std::push_heap(openList.begin(), openList.end(), Node::GreaterByCost());
+      }
+    }
+  }
+
+  return ReconstructPath(currentNode);
+}
+
+std::vector&lt;AStar::Node&gt; AStar::ReconstructPath(Node currentNode)
+{
+  std::vector&lt;Node&gt; path;
+  path.push_back(currentNode);
+
+  while (cameFrom.find(currentNode) != cameFrom.end())
+  {
+    currentNode = cameFrom[currentNode];
+    path.push_back(currentNode);
+  }
+
+  return path;
+}</code></pre>
+</div>
+</div>
+
+<div class="row">
 <div class="code-sample">
 <h3>AStarDungeon.h</h3>
 <pre><code class="c++">#pragma once
@@ -39,14 +233,16 @@ public:
   bool LoadMap(const std::string mapFile);
   void MarkPathToGoal();
   void PrintMap() const;
+  int GetPathLength();
 
 private:
-  enum TileType { normal = '.', wall = 'W', goal = 'G', start = 'S', path = '*', invalid = 'I' };
+  enum TileType { typeNormal = '.', typeWall = 'W', typeGoal = 'G', typeStart = 'S', typePath = '*', typeInvalid = 'I' };
 
   std::vector&lt;std::vector&lt;char&gt;&gt; map;
   Node startNode;
   Node goalNode;
   bool mapLoaded = false;
+  std::vector&lt;Node&gt; path;
 
   
   bool IsCharValid(const char &c) const;
@@ -57,22 +253,153 @@ private:
   float HeuristicFunction(const Node &node1, const Node &node2) const override;
 };</code></pre>
 </div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>AStarDungeon.cpp</h3>
+<pre><code class="c++">#include "AStarDungeon.h"
+
+bool AStarDungeon::LoadMap(const std::string mapFile)
+{
+  std::ifstream file(mapFile);
+  if (!file) return false;
+
+  std::string line;
+  bool foundStart = false;
+  bool foundGoal = false;
+  while (file &gt;&gt; line)
+  {
+    std::vector&lt;char&gt; mapRow; // each line represents a map row
+    for (char c : line)
+    {
+      if (!IsCharValid(c)) return false;
+
+      if (c == TileType::typeStart)
+      {
+        if (foundStart) // allow only one start
+        {
+          return false;
+        }
+        else 
+        {
+          startNode.x = mapRow.size();
+          startNode.y = map.size();
+          foundStart = true;
+        }
+      }
+      else if (c == TileType::typeGoal)
+      {
+        if (foundGoal) // allow only one goal
+        {
+          return false;
+        }
+        else
+        {
+          goalNode.x = mapRow.size();
+          goalNode.y = map.size();
+          foundGoal = true;
+        }
+      }
+
+      mapRow.push_back(c);
+    }
+    map.push_back(mapRow);
+  }
+
+  mapLoaded = foundStart && foundGoal;
+  return mapLoaded;
+}
+
+void AStarDungeon::MarkPathToGoal()
+{
+  if (!mapLoaded) return;
+  path = FindPath(startNode, goalNode);
+  for (Node n : path)
+  {
+    char &tile = map.at(n.y).at(n.x);
+    if (tile != TileType::typeGoal && tile != TileType::typeStart)
+    {
+      tile = TileType::typePath;
+    }
+  }
+}
+
+void AStarDungeon::PrintMap() const
+{
+  for (auto row = map.begin(); row != map.end(); ++row)
+  {
+    for (auto tile = row-&gt;begin(); tile != row-&gt;end(); ++tile)
+    {
+      std::cout &lt;&lt; *tile;
+    }
+    std::cout &lt;&lt; std::endl;
+  }
+}
+
+int AStarDungeon::GetPathLength()
+{
+  if (!mapLoaded) return -1;
+  return path.size() -1; // we exclude the starting node
+}
+
+bool AStarDungeon::IsCharValid(const char &c) const
+{
+  return c == TileType::typeNormal ||
+    c == TileType::typeWall ||
+    c == TileType::typeGoal ||
+    c == TileType::typeStart;
+}
+
+AStarDungeon::TileType AStarDungeon::GetTileType(const Node &node) const
+{
+  try
+  {
+    return static_cast&lt;TileType&gt;(map.at(node.y).at(node.x));
+  }
+  catch (std::out_of_range)
+  {
+    return TileType::typeInvalid;
+  }
+}
+
+bool AStarDungeon::CanMoveTo(const Node &node) const
+{
+  TileType type = GetTileType(node);
+  return type != TileType::typeWall && type != TileType::typeInvalid;
+}
+
+std::vector&lt;AStarDungeon::Node&gt; AStarDungeon::GetSuccessors(const AStarDungeon::Node &node) const
+{
+  Node up = node;
+  ++up.y;
+  Node right = node;
+  ++right.x;
+  Node down = node;
+  --down.y;
+  Node left = node;
+  --left.x;
+
+  std::vector&lt;Node&gt; successors = { up, right, down, left };
+
+  // get rid of untraversable tiles
+  auto canMoveToLambda = [this](Node &n) { return !CanMoveTo(n); };
+  successors.erase(std::remove_if(successors.begin(), successors.end(), canMoveToLambda), successors.end());
+
+  return successors;
+}
+
+// we use manhattan distance because it's monotonic, fast and simple
+float AStarDungeon::HeuristicFunction(const Node &node1, const Node &node2) const
+{
+  return std::abs(node1.x - node2.x) + std::abs(node1.y - node2.y);
+}</code></pre>
+</div>
+</div>
 
         </section>
       </div>
     </div>
-
-    <section class="footer">
-      <div class="social">
-        <a href="mailto:gregor.panic@gmail.com">
-          <img src="images/email_circle.png">
-        </a>
-        <a href="https://si.linkedin.com/in/gregorpanic">
-          <img src="images/linkedin_circle.png">
-        </a>
-      </div>
-      &copy;2015 Gregor Panič
-    </section>
 
     <section class="footer">
       <div class="social">
