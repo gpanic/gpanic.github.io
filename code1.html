@@ -5,13 +5,62 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Bootstrap 101 Template</title>
+    <title>Gregor Panič - Game Developer</title>
 
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <link href="css/highlight/github.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,300,600,700,900' rel='stylesheet' type='text/css'>
   </head>
   <body>
-  <div class="wrapper">
+
+    <section class="code-samples">
+      <div class="container">
+        <div class="row">
+        <div class="title">
+          <div class="number">01</div>
+          <div class="description">A* path finding implementation.</div>
+          <div class="back"><a href="/">&laquo; Back</a></div>
+        </div>
+
+<div class="code-sample">
+<h3>AStarDungeon.h</h3>
+<pre><code class="c++">#pragma once
+#include "AStar.h"
+#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;tuple&gt;
+
+class AStarDungeon : AStar
+{
+public:
+  bool LoadMap(const std::string mapFile);
+  void MarkPathToGoal();
+  void PrintMap() const;
+
+private:
+  enum TileType { normal = '.', wall = 'W', goal = 'G', start = 'S', path = '*', invalid = 'I' };
+
+  std::vector&lt;std::vector&lt;char&gt;&gt; map;
+  Node startNode;
+  Node goalNode;
+  bool mapLoaded = false;
+
+  
+  bool IsCharValid(const char &c) const;
+  TileType GetTileType(const Node &node) const;
+  bool CanMoveTo(const Node &node) const;
+
+  std::vector&lt;Node&gt; GetSuccessors(const Node &node) const override;
+  float HeuristicFunction(const Node &node1, const Node &node2) const override;
+};</code></pre>
+</div>
+
+        </section>
+      </div>
+    </div>
 
     <section class="footer">
       <div class="social">
@@ -25,9 +74,21 @@
       &copy;2015 Gregor Panič
     </section>
 
-  </div>
+    <section class="footer">
+      <div class="social">
+        <a href="mailto:gregor.panic@gmail.com">
+          <img src="images/email_circle.png">
+        </a>
+        <a href="https://si.linkedin.com/in/gregorpanic">
+          <img src="images/linkedin_circle.png">
+        </a>
+      </div>
+      &copy;2015 Gregor Panič
+    </section>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/highlight.pack.js"></script> 
+    <script>hljs.initHighlightingOnLoad();</script>
   </body>
 </html>
