@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Gregor Panič - Game Developer</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/highlight/github.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,300,600,700,900' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+
+    <section class="code-samples">
+      <div class="container">
+        <div class="row">
+        <div class="header">
+          <div class="number">02</div>
+          <div class="name">Smooting star system (Unity C#)</div>
+          <div class="back"><a href="/">&laquo; Back</a></div>
+        </div>
+        <div class="description">
+          <h3>Description</h3>
+          <p>
+            Creates a shooting star effect at random time intervals, random locations and random directions.
+            <a href="#" class="thumbnail">
+              <img src="/images/shooting_star.png">
+            </a>
+          </p>
+          <a href="https://github.com/gpanic/code-samples/tree/master/CodeSample2/ShootingStarManager" class="button">GitHub</a>
+        </div>
+      </div>
+
+<div class="row">
+<div class="code-sample">
+<h3>ShootingStar.cs</h3>
+<pre><code class="c#">using UnityEngine;
+using System.Collections;
+
+public class ShootingStar : MonoBehaviour
+{
+    class AnimationParameters
+    {
+        public Vector3 scale;
+        public float starTransparency;
+        public float trailTransparency;
+        public float flareBrightness;
+    };
+
+    public Vector3 startPos;
+    public Vector3 endPos;
+    public float growTime = 1.0f; // the shooting star grows and shrinks during travel
+    public float shrinkTime = 1.5f;
+    public Vector3 minScale = new Vector3(0.5f, 0.5f, 0.5f);
+    public Vector3 maxScale = new Vector3(2, 2, 2);
+    public float minFlareBrightness = 0.0f;
+    public float maxFlareBrightness = 1.0f;
+
+    private TrailRenderer tr;
+    private bool travelling = false;
+    private bool growing = true;
+    private float timer = 0.0f;
+    private LensFlare flare;
+    private Material starMat;
+    private Material trailMat;
+    private float origTrailTime;
+    private AnimationParameters maxValues;
+    private AnimationParameters minValues;
+
+    private void Start()
+    {
+        flare = GetComponent&lt;LensFlare&gt;();
+        startPos = transform.position;
+        starMat = GetComponent&lt;Renderer&gt;().material;
+        trailMat = GetComponent&lt;TrailRenderer&gt;().material;
+        starMat.SetFloat("_Transparency", 0.0f);
+        trailMat.SetFloat("_Transparency", 0.0f);
+        flare.brightness = minFlareBrightness;
+        tr = gameObject.GetComponent&lt;TrailRenderer&gt;();
+        origTrailTime = tr.time;
+        maxValues = new AnimationParameters() { scale = maxScale, starTransparency = 1.0f,
+            trailTransparency = 1.0f, flareBrightness = maxFlareBrightness };
+        minValues = new AnimationParameters() { scale = minScale, starTransparency = 0.0f,
+            trailTransparency = 0.0f, flareBrightness = minFlareBrightness };
+    }
+
+    private void Update()
+    {
+        if (travelling)
+        {
+            timer += Time.deltaTime;
+            transform.position = Vector3.Lerp(startPos, endPos, timer / (growTime + shrinkTime));
+
+            // setting the time parameter to 0 for a frame effectively restarts the trail rendered,
+            // preventing the problematic trail between the end of a shooting star and the start of
+            // a reused one here we restore it to its oroginal value
+            if (tr.time != origTrailTime && timer != 0)
+            {
+                tr.time = origTrailTime;
+            }
+
+          
+            if (growing)
+            {
+                UpdateAnimations(timer / growTime, minValues, maxValues);
+            }
+            else
+            {
+                UpdateAnimations((timer - growTime) / shrinkTime, maxValues, minValues);
+            }
+
+
+            if (timer &gt;= growTime)
+            {
+                growing = false;
+            }
+
+            if (timer &gt;= growTime + shrinkTime)
+            {
+                timer = 0.0f;
+                travelling = false;
+                growing = true;
+                gameObject.SetActive(false);
+
+                // reset the trail renderer
+                tr.time = 0;
+            }
+
+        }
+    }
+
+    private void UpdateAnimations(float t, AnimationParameters fromParameters,
+        AnimationParameters toParameters)
+    {
+        transform.localScale = Vector3.Lerp(fromParameters.scale, toParameters.scale, t);
+        starMat.SetFloat("_Transparency", Mathf.Lerp(fromParameters.starTransparency,
+            toParameters.starTransparency, t));
+        trailMat.SetFloat("_Transparency", Mathf.Lerp(fromParameters.trailTransparency,
+            toParameters.trailTransparency, t));
+        flare.brightness = Mathf.Lerp(fromParameters.flareBrightness,
+            toParameters.flareBrightness, t);
+    }
+
+    public void StartEffect()
+    {
+        startPos = transform.position;
+        travelling = true;
+    }
+}
+</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>ShootingStarManager.cs</h3>
+<pre><code class="c#">using UnityEngine;
+using System.Collections;
+
+public class ShootingStarManager : MonoBehaviour
+{
+    public Transform shootingStarPrefab;
+    public float maxTimeBetween = 5.0f;
+    public float distanceFromPlayer = 80.0f;
+    public float travelDistance = 60.0f;
+    public int poolSize = 3;
+
+    private GameObject player;
+    private float currentTimeBetween = 5.0f;
+    private float timer;
+
+    // use a pool to reuse shooting star objects
+    private GameObject[] shootingStars;
+
+    private void Start()
+    {
+        player = GameObject.FindGameObjectWithTag(Tags.player);
+        if (!player)
+        {
+            Camera[] cams = GameObject.FindObjectsOfType&lt;Camera&gt;();
+            if (cams.Length &gt; 0)
+            {
+                player = cams[0].gameObject;
+            }
+        }
+        shootingStars = new GameObject[poolSize];
+        for (int i = 0; i &lt; poolSize; ++i)
+        {
+            shootingStars[i] = ((Transform)Object.Instantiate(shootingStarPrefab, Vector3.zero,
+                Quaternion.identity)).gameObject;
+            shootingStars[i].SetActive(false);
+        }
+        currentTimeBetween = Random.Range(0.0f, maxTimeBetween);
+    }
+
+    private void Update()
+    {
+        timer += Time.deltaTime;
+        if (timer &gt;= currentTimeBetween)
+        {
+            timer = 0.0f;
+            ExecuteShootingstar(ChooseFreeShootingStar());
+
+            // execute shooting start randomly but within maxTimeBetween
+            currentTimeBetween = Random.Range(0.0f, maxTimeBetween);
+        }
+    }
+
+    private GameObject ChooseFreeShootingStar()
+    {
+        foreach (GameObject star in shootingStars)
+        {
+            if (!star.activeSelf)
+            {
+                return star;
+            }
+        }
+        return null;
+    }
+
+    private void ExecuteShootingstar(GameObject shootingStar)
+    {
+        if (shootingStar == null) return;
+
+        // spawn a shooting start distanceFromPlayer away from the player in a random direction,
+        // but only above the player
+        Vector3 direction = new Vector3(Random.Range(-1.0f, 1.0f), Random.Range(0.0f, 0.9f),
+            Random.Range(-1.0f, 1.0f));
+        shootingStar.transform.position = player.transform.position
+            + direction.normalized * distanceFromPlayer;
+
+        // directions are relative to the player
+        Vector3 directionToStar = shootingStar.transform.position - player.transform.position;
+        Vector3 directionRight = Vector3.Cross(directionToStar, Vector3.up).normalized;
+
+        // rotate the right vector so it points in an arc downwards
+        Quaternion rotation = Quaternion.AngleAxis(Random.Range(10.0f, 170.0f), directionToStar);
+
+        ShootingStar starComponent = shootingStar.GetComponent&lt;ShootingStar&gt;();
+
+         // ensure the shooting star travels downwards relative to the player's horizon
+        starComponent.endPos = shootingStar.transform.position
+            + (rotation * directionRight).normalized * travelDistance;
+        shootingStar.SetActive(true);
+        starComponent.StartEffect();
+    }
+}</code></pre>
+</div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+    <section class="footer">
+      <div class="social">
+        <a href="mailto:gregor.panic@gmail.com">
+          <img src="images/email_circle.png">
+        </a>
+        <a href="https://si.linkedin.com/in/gregorpanic">
+          <img src="images/linkedin_circle.png">
+        </a>
+      </div>
+      &copy;2015 Gregor Panič
+    </section>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/highlight.pack.js"></script> 
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>

@@ -281,7 +281,7 @@ a.project-banner
 	right: 15px;
 }
 
-.code-samples .header .back a
+.code-samples .header .back a, a.button
 {
 	color: white;
 	border: none;
@@ -291,7 +291,7 @@ a.project-banner
 	border-radius: 5px;
 }
 
-.code-samples .header .back a:hover
+.code-samples .header .back a:hover, a.button:hover
 {
 	background-color: #404040;
 	border: none;
@@ -299,10 +299,10 @@ a.project-banner
 
 .code-samples .description
 {
-	margin-bottom: 50px;
+	margin-bottom: 30px;
 }
 
-.code-sample[class*='-6']:nth-child(2)
+.code-samples .description p
 {
-	
+	margin-bottom: 15px;
 }

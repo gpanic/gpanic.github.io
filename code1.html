@@ -19,13 +19,16 @@
         <div class="row">
         <div class="header">
           <div class="number">01</div>
-          <div class="name">A* path finding implementation.</div>
+          <div class="name">A* pathfinding (C++)</div>
           <div class="back"><a href="/">&laquo; Back</a></div>
         </div>
         <div class="description">
           <h3>Description</h3>
+          <p>
           This is a simple AStar implementation I implemented for a programming challenge. It works on a map in form of a grid,
           with marked start, goal and wall tiles. It finds the shortest path and prints an updated map.
+          </p>
+          <a href="https://github.com/gpanic/code-samples/tree/master/CodeSample1/AStarDungeon" class="button">GitHub</a>
         </div>
       </div>
 
@@ -340,7 +343,7 @@ void AStarDungeon::PrintMap() const
 int AStarDungeon::GetPathLength()
 {
   if (!mapLoaded) return -1;
-  return path.size() -1; // we exclude the starting node
+  return path.size() - 1; // we exclude the starting node
 }
 
 bool AStarDungeon::IsCharValid(const char &c) const
