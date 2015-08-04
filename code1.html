@@ -239,7 +239,8 @@ public:
   int GetPathLength();
 
 private:
-  enum TileType { typeNormal = '.', typeWall = 'W', typeGoal = 'G', typeStart = 'S', typePath = '*', typeInvalid = 'I' };
+  enum TileType { typeNormal = '.', typeWall = 'W', typeGoal = 'G', typeStart = 'S',
+      typePath = '*', typeInvalid = 'I' };
 
   std::vector&lt;std::vector&lt;char&gt;&gt; map;
   Node startNode;
@@ -387,7 +388,8 @@ std::vector&lt;AStarDungeon::Node&gt; AStarDungeon::GetSuccessors(const AStarDun
 
   // get rid of untraversable tiles
   auto canMoveToLambda = [this](Node &n) { return !CanMoveTo(n); };
-  successors.erase(std::remove_if(successors.begin(), successors.end(), canMoveToLambda), successors.end());
+  successors.erase(std::remove_if(successors.begin(), successors.end(), canMoveToLambda),
+      successors.end());
 
   return successors;
 }
