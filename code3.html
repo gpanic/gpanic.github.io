@@ -27,8 +27,8 @@
           <p>
             A culling system that uses distance to activate and deactivate objects. Culling groups contain draw distances and groups
             of objects to activate/deactivate. The abstract class ObjectCuller contains the the genral algorithm while the activate
-            and deactivate operations are left to be implemented by concrete classes like ParticleSystemCuller, which enables/disables
-            a particle system when it's beyond the specified draw distance. A set number of objects is culled per frame, which means the
+            and deactivate operations are left to be implemented by concrete classes. One such class is ParticleSystemCuller, which enables/disables
+            a particle system when it's beyond the specified draw distance. A set number of objects are culled per frame, which means the
             culling operation has a minimal performance impact even with large numbers of objects, but it takes longer for the object
             to activate/deactivate.
           </p>
@@ -118,7 +118,7 @@ public abstract class ObjectCuller : MonoBehaviour
 
     }
 
-    // doesn't allow empty culling groups or object groups to not waste time
+    // doesn't allow empty culling groups or object groups so as to not waste time
     private bool ValidateCullingGroups()
     {
         if (cullingGroups.Length == 0)
