@@ -142,6 +142,11 @@ a.project-banner
 	color: #333;
 }
 
+.projects .row
+{
+	margin-bottom: 50px;
+}
+
 .projects h3
 {
 	line-height: 30px;
@@ -271,6 +276,14 @@ a.project-banner
 	padding: 10px;
 }
 
+.back
+{
+	color:white;
+	font-size: 0px;
+	margin-bottom: 50px;
+	text-align:center;
+}
+
 .code-samples .header .back
 {
 	float:right;
@@ -279,9 +292,10 @@ a.project-banner
 	position:relative;
 	top: 18px;
 	right: 15px;
+	margin: 0;
 }
 
-.code-samples .header .back a, a.button
+.back a, a.button
 {
 	color: white;
 	border: none;
@@ -304,5 +318,5 @@ a.project-banner
 
 .code-samples .description p
 {
-	margin-bottom: 15px;
+	margin-bottom: 20px;
 }
