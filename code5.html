@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Gregor Panič - Game Developer</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/highlight/github.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,300,600,700,900' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+
+    <section class="code-samples">
+      <div class="container">
+        <div class="row">
+        <div class="header">
+          <div class="number">05</div>
+          <div class="name">Gameplay statistics system (Unity C#)</div>
+          <div class="back"><a href="/">&laquo; Back</a></div>
+        </div>
+        <div class="description">
+          <h3>Description</h3>
+          <p>
+            The statistics system collects the following data: playthrough status, playtime, framerate and level and checkpoint progression.
+            This data is persisted using the .NET XML Serializer. The class StatisticsData.cs also acts as an interface to change the state
+            of the data.
+          </p>
+          <a href="https://github.com/gpanic/code-samples/tree/master/CodeSample5/GameplayStatisticsSystem" class="button">GitHub</a>
+        </div>
+      </div>
+
+<div class="row">
+<div class="code-sample">
+<h3>The collected data</h3>
+<pre><code class="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;StatisticsData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;PlaythroughData&gt;
+    &lt;Playthrough Id="0" Date="2015-05-18T15:13:14.8115925+01:00" Finished="true" Respawns="166"&gt;
+      &lt;PlayTime Time="3741.79272" TimeFormatted="01:02:21.793" /&gt;
+      &lt;FrameRate Average="180" Min="95" Max="321" Updates="7495" /&gt;
+      &lt;LevelData&gt;
+        &lt;Level Id="1"&gt;
+          &lt;CheckpointData&gt;
+            &lt;Checkpoint Id="1" Reached="true" Skipped="false" Respawns="1" Time="00:00:00.000"
+                AverageFps="0" /&gt;
+            &lt;Checkpoint Id="2" Reached="true" Skipped="false" Respawns="0" Time="00:00:26.816"
+                AverageFps="184" /&gt;
+            &lt;Checkpoint Id="3" Reached="true" Skipped="false" Respawns="0" Time="00:00:09.744"
+                AverageFps="154.8" /&gt;
+            &lt;Checkpoint Id="4" Reached="true" Skipped="false" Respawns="1" Time="00:00:12.464"
+                AverageFps="169" /&gt;
+            &lt;Checkpoint Id="5" Reached="true" Skipped="false" Respawns="0" Time="00:00:15.200"
+                AverageFps="159.9" /&gt;
+            &lt;Checkpoint Id="6" Reached="true" Skipped="false" Respawns="0" Time="00:00:02.160"
+                AverageFps="165.1" /&gt;
+            &lt;Checkpoint Id="7" Reached="true" Skipped="false" Respawns="0" Time="00:00:04.848"
+                AverageFps="164.2" /&gt;
+            &lt;Checkpoint Id="8" Reached="true" Skipped="false" Respawns="0" Time="00:00:05.744"
+                AverageFps="159.2" /&gt;
+          &lt;/CheckpointData&gt;
+        &lt;/Level&gt;
+      &lt;/LevelData&gt;
+    &lt;/Playthrough&gt;
+  &lt;/PlaythroughData&gt;
+&lt;/StatisticsData&gt;
+</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>StatisticsData.cs</h3>
+<pre><code class="c#">using System;
+using System.Collections;
+using System.Collections.Generic;
+
+[System.Serializable]
+public class StatisticsData
+{
+    public List&lt;PlaythroughData&gt; PlaythroughData { get; set; }
+
+    public StatisticsData()
+    {
+        PlaythroughData = new List&lt;PlaythroughData&gt;();
+    }
+
+    public void UpdateRespawn(int checkpoint)
+    {
+        GetCurrentPlaythroughData().Respawns++;
+        GetCheckpointData(checkpoint).Respawns++;
+    }
+
+    public void UpdateCheckpoint(int checkpoint, float averageFps, int newUpdatesNum, float maxFps,
+        float minFps, float time)
+    {
+        PlaythroughData currentPlaythrough = GetCurrentPlaythroughData();
+        currentPlaythrough.PlayTime.Time += time;
+
+        CheckpointData currentCheckpoint = GetCheckpointData(checkpoint);
+        currentCheckpoint.Time = TimeUtil.FormatTime(time);
+        currentCheckpoint.AverageFps = averageFps;
+        currentCheckpoint.Reached = true;
+
+        // calculate moving average of fps
+        FrameRateData frameRate = currentPlaythrough.FrameRate;
+        int sumUpdates = frameRate.Updates + newUpdatesNum;
+        float previousFps = frameRate.Average * frameRate.Updates / sumUpdates;
+        float currentFps = averageFps * newUpdatesNum / sumUpdates;
+        frameRate.Average = (float)Math.Round(previousFps + currentFps, 1);
+        frameRate.Updates = sumUpdates;
+
+        frameRate.Max = (float)Math.Round(Math.Max(frameRate.Max, maxFps), 0);
+        frameRate.Min = (float)Math.Round(Math.Min(frameRate.Min, minFps), 0);
+    }
+
+    public void FinishPlaythrough()
+    {
+        GetCurrentPlaythroughData().Finished = true;
+    }
+
+    // start new playthrough
+    public void Init(int level, int checkpointNum)
+    {
+        PlaythroughData newPlaythrough = new PlaythroughData() {
+            Id = PlaythroughData.Count,
+            Date = DateTime.Now
+        };
+
+        // populate checkpoint data with starting values 
+        CheckpointData[] cd = CheckpointData.ArrayOf(checkpointNum);
+        cd[0].Reached = true;
+        newPlaythrough.LevelData.Add(new LevelData() { Id = level, CheckpointData = cd });
+
+        PlaythroughData.Add(newPlaythrough);
+    }
+
+    public void SkipCheckpoint(int checkpoint)
+    {
+        GetCheckpointData(checkpoint).Skipped = true;
+    }
+
+    private PlaythroughData GetCurrentPlaythroughData()
+    {
+        if (PlaythroughData.Count &lt;= 0)
+        {
+            throw new System.IndexOutOfRangeException("No playthrough data exists");
+        }
+        return PlaythroughData[PlaythroughData.Count - 1];
+    }
+
+    private LevelData GetCurrentLevelData()
+    {
+        PlaythroughData currentPlaythrough = GetCurrentPlaythroughData();
+        if (currentPlaythrough.LevelData.Count &lt;= 0)
+        {
+            throw new System.IndexOutOfRangeException("No level data exists");
+        }
+        return currentPlaythrough.LevelData[currentPlaythrough.LevelData.Count - 1];
+    }
+
+    private CheckpointData GetCheckpointData(int checkpoint)
+    {
+        LevelData currentLevel = GetCurrentLevelData();
+        if (currentLevel.CheckpointData.Length &lt;= 0)
+        {
+            throw new System.IndexOutOfRangeException("No checkpoint data exists");
+        }
+        if (currentLevel.CheckpointData.Length &gt;= checkpoint)
+        {
+            throw new System.ArgumentException("Passed checkpoint does not exist");
+        }
+        return currentLevel.CheckpointData[checkpoint - 1];
+    }
+}
+</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>PlaythroughData.cs</h3>
+<pre><code class="c#">using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+
+[Serializable]
+[XmlType(TypeName = "Playthrough")]
+public class PlaythroughData
+{
+    [XmlAttribute]
+    public int Id { get; set; }
+    [XmlAttribute]
+    public DateTime Date { get; set; }
+    [XmlAttribute]
+    public bool Finished { get; set; }
+    [XmlAttribute]
+    public int Respawns { get; set; }
+    public PlayTimeData PlayTime { get; set; }
+    public FrameRateData FrameRate { get; set; }
+    public List&lt;LevelData&gt; LevelData { get; set; }
+
+    public PlaythroughData()
+    {
+        PlayTime = new PlayTimeData();
+        LevelData = new List&lt;LevelData&gt;();
+        FrameRate = new FrameRateData();
+    }
+}
+</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>LevelData.cs</h3>
+<pre><code class="c#">using System.Collections;
+using System.Xml.Serialization;
+
+[System.Serializable]
+[XmlType(TypeName = "Level")]
+public class LevelData
+{
+    [XmlAttribute]
+    public int Id { get; set; }
+    public CheckpointData[] CheckpointData { get; set; }
+}
+</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>CheckpointData.cs</h3>
+<pre><code class="c#">using System.Collections;
+using System.Xml.Serialization;
+
+[System.Serializable]
+[XmlType(TypeName = "Checkpoint")]
+public class CheckpointData
+{
+    [XmlAttribute]
+    public int Id { get; set; }
+    [XmlAttribute]
+    public bool Reached { get; set; }
+    [XmlAttribute]
+    public bool Skipped { get; set; }
+    [XmlAttribute]
+    public int Respawns { get; set; }
+    [XmlAttribute]
+    public string Time { get; set; }
+    [XmlAttribute]
+    public float AverageFps { get; set; }
+
+    public static CheckpointData[] ArrayOf(int size)
+    {
+        CheckpointData[] c = new CheckpointData[size];
+        for (int i = 0; i &lt; size; ++i)
+        {
+            c[i] = new CheckpointData() { Id = i + 1, Respawns = 0, Time = TimeUtil.FormatTime(0), AverageFps = 0 };
+        }
+        return c;
+    }
+}
+</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>PlayTimeData.cs</h3>
+<pre><code class="c#">using System.Collections;
+using System.Xml.Serialization;
+
+[System.Serializable]
+public class PlayTimeData
+{
+    [XmlAttribute]
+    public float Time { get; set; }
+    [XmlAttribute]
+    public string TimeFormatted { get { return TimeUtil.FormatTime(Time); } set { } }
+}
+
+</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>FrameRateData.cs</h3>
+<pre><code class="c#">using System;
+using System.Collections;
+using System.Xml.Serialization;
+
+[Serializable]
+public class FrameRateData
+{
+    [XmlAttribute]
+    public float Average { get; set; }
+    [XmlAttribute]
+    public float Min { get; set; }
+    [XmlAttribute]
+    public float Max { get; set; }
+    [XmlAttribute]
+    public int Updates { get; set; } // number of frames processed
+
+    public FrameRateData()
+    {
+        Min = 1000;
+    }
+}
+</code></pre>
+</div>
+</div>
+
+        </section>
+      </div>
+    </div>
+
+    <section class="footer">
+      <div class="social">
+        <a href="mailto:gregor.panic@gmail.com">
+          <img src="images/email_circle.png">
+        </a>
+        <a href="https://github.com/gpanic">
+          <img src="images/github_circle.png">
+        </a>
+        <a href="https://si.linkedin.com/in/gregorpanic">
+          <img src="images/linkedin_circle.png">
+        </a>
+      </div>
+      &copy;2015 Gregor Panič
+    </section>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/highlight.pack.js"></script> 
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
