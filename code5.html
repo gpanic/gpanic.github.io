@@ -170,9 +170,9 @@ public class StatisticsData
         {
             throw new System.IndexOutOfRangeException("No checkpoint data exists");
         }
-        if (currentLevel.CheckpointData.Length &gt;= checkpoint)
+        if (currentLevel.CheckpointData.Length &lt; checkpoint)
         {
-            throw new System.ArgumentException("Passed checkpoint does not exist");
+            throw new System.ArgumentException("Checkpoint does not exist");
         }
         return currentLevel.CheckpointData[checkpoint - 1];
     }
@@ -262,7 +262,8 @@ public class CheckpointData
         CheckpointData[] c = new CheckpointData[size];
         for (int i = 0; i &lt; size; ++i)
         {
-            c[i] = new CheckpointData() { Id = i + 1, Respawns = 0, Time = TimeUtil.FormatTime(0), AverageFps = 0 };
+            c[i] = new CheckpointData() { Id = i + 1, Respawns = 0, Time = TimeUtil.FormatTime(0),
+                AverageFps = 0 };
         }
         return c;
     }
@@ -318,6 +319,7 @@ public class FrameRateData
 </div>
 </div>
 
+<div class="back"><a href="/">&laquo; Back</a></div>
         </section>
       </div>
     </div>

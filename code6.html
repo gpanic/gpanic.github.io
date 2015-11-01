@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Gregor Panič - Game Developer</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/highlight/github.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,300,600,700,900' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+
+    <section class="code-samples">
+      <div class="container">
+        <div class="row">
+        <div class="header">
+          <div class="number">06</div>
+          <div class="name">Crouching system (Unity C#)</div>
+          <div class="back"><a href="/">&laquo; Back</a></div>
+        </div>
+        <div class="description">
+          <h3>Description</h3>
+          <p>
+            In the game <a href="http://www.welkinroad.com/">Welkin Road</a> I wanted to make the player crouch mid-air by pulling
+            up their legs but crouch normally by performing a squat when standing. The system shown bellow handles both ways
+            of crouching by moving the character controller and adjusting its size to perform the crouch. Various special cirumstances
+            are considered on the uncrouch.
+          </p>
+          <a href="https://github.com/gpanic/code-samples/tree/master/CodeSample6/CrouchingSystem" class="button">GitHub</a>
+        </div>
+      </div>
+
+<div class="row">
+<div class="code-sample">
+<h3>The collected data</h3>
+<pre><code class="c#">using UnityEngine;
+using System.Collections;
+
+// partial section of the whole MovementController script
+public class MovementController : MonoBehaviour {
+
+    public float crouchHeight = 1.0f; // height of controller when crouched
+
+    private CharacterController characterController;
+    private float controllerHeight;
+    private float heightDifference;
+    private float controllerSkinWidth = 0.08f;
+    private bool crouchedWhileAirborne = false;
+    private bool crouching = false;
+    private float crouchCameraChange = 0;
+    private bool couldNotUncrouch = false;
+
+    // triggers are the same shape and size as the character controller, positioned so they
+    // can detect objects above and below the player object
+
+    // detects weather any object is blocking the uncrouch
+    private CollisionDetector crouchCollisionTop;
+
+    // used to determine distance to floor
+    private CollisionDetector crouchCollisionBottom;
+
+    private Vector3 currentPos;
+
+    private void Start()
+    {
+        characterController = GetComponent&lt;CharacterController&gt;();
+        crouchCollisionTop = GameObject.Find("collision_detector_top").
+            GetComponent&lt;CollisionDetector&gt;();
+        crouchCollisionBottom = GameObject.Find("collision_detector_bottom").
+            GetComponent&lt;CollisionDetector&gt;();
+        controllerHeight = characterController.height;
+        heightDifference = (controllerHeight - crouchHeight);
+    }
+
+    private void Crouch()
+    {
+        crouching = true;
+        characterController.height = crouchHeight;
+
+        if (characterController.isGrounded)
+        {
+            // squat by moving the controller down by half the height difference
+            // so he's at the floor
+            characterController.center = new Vector3(0, -heightDifference / 2, 0);
+        }
+        else
+        {
+            // crouch in air by pulling legs up - move controller up by half
+            // of the height difference
+            crouchedWhileAirborne = true;
+            characterController.center = new Vector3(0, heightDifference / 2, 0);
+
+            // since the controller is now positioned higher, move the top collision
+            // trigger up as well
+            crouchCollisionTop.gameObject.transform.localPosition
+                += new Vector3(0, heightDifference, 0);
+        }
+    }
+
+    private void Uncrouch()
+    {
+        // remember that it wasn't possible to uncrouch so that it can be done later
+        couldNotUncrouch = crouchCollisionTop.IsColliding;
+        if (crouchCollisionTop.IsColliding) return;
+
+        if (crouchedWhileAirborne)
+        {
+            // move the top collision trigger back
+            crouchCollisionTop.gameObject.transform.localPosition
+                += new Vector3(0, -heightDifference, 0);
+            if (!characterController.isGrounded)
+            {
+                if (crouchCollisionBottom.IsColliding)
+                {
+                    // the player crouched in air, then uncrouched before fully landing, calculate
+                    // remaining distance to the floor and use it to move the whole player object
+                    // back up
+                    float distanceToFloor = -(crouchCollisionBottom.CollidingObject.
+                        ClosestPointOnBounds(transform.position) - transform.position).y;
+                    float change = heightDifference + controllerSkinWidth - distanceToFloor;
+                    transform.Translate(Vector3.up * change);
+                    currentPos = transform.position;
+
+                    // move the camera back to the position before the uncrouch so it
+                    // can animate smoothly
+                    crouchCameraChange = -change;
+                }
+            }
+            else
+            {
+                // since the controller was moved up and will be moved back down move the whole
+                // player object up by the same amount (move player up to standing position then
+                // extend legs back to the ground)
+                transform.Translate(Vector3.up * heightDifference);
+                currentPos = transform.position;
+                crouchCameraChange = -heightDifference;
+            }
+            crouchedWhileAirborne = false;
+        }
+
+        // uncrouch
+        crouching = false;
+        characterController.center = Vector3.zero;
+        characterController.height = controllerHeight;
+    }
+
+}
+</code></pre>
+</div>
+</div>
+
+<div class="back"><a href="/">&laquo; Back</a></div>
+        </section>
+      </div>
+    </div>
+
+    <section class="footer">
+      <div class="social">
+        <a href="mailto:gregor.panic@gmail.com">
+          <img src="images/email_circle.png">
+        </a>
+        <a href="https://github.com/gpanic">
+          <img src="images/github_circle.png">
+        </a>
+        <a href="https://si.linkedin.com/in/gregorpanic">
+          <img src="images/linkedin_circle.png">
+        </a>
+      </div>
+      &copy;2015 Gregor Panič
+    </section>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/highlight.pack.js"></script> 
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>

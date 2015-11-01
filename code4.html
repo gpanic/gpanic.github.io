@@ -25,7 +25,7 @@
         <div class="description">
           <h3>Description</h3>
           <p>
-            A system of different triggers that can trigger different actions. The abstract class TargetAction allows for decoupling of actions from their triggers.
+            A system of different triggers that can trigger different actions. The abstract class TargetAction allows for the decoupling of actions from their triggers.
           </p>
           <a href="https://github.com/gpanic/code-samples/tree/master/CodeSample4/TriggersAndActions" class="button">GitHub</a>
         </div>
@@ -37,11 +37,12 @@
 <pre><code class="c#">using UnityEngine;
 using System.Collections;
 
-public abstract class TargetAction : MonoBehaviour
+public interface TargetAction
 {
-    public abstract void StartAction();
-    public abstract void EndAction();
-}</code></pre>
+    void StartAction();
+    void EndAction();
+}
+</code></pre>
 </div>
 </div>
 
@@ -145,8 +146,8 @@ public class TargetTrigger : HookableObject
 <pre><code class="c#">using UnityEngine;
 using System.Collections;
 
-// rotates beam around a pivot point when called to do so
-public class RotateBeamAction : TargetAction
+// rotates beam around a pivot point when triggered
+public class RotateBeamAction : MonoBehaviour, TargetAction
 {
     private enum State { RotatingForward, RotatingBack, Stationary };
 
@@ -222,13 +223,13 @@ public class RotateBeamAction : TargetAction
         transform.position += originalPivotPosition - pivot.position;
     }
 
-    public override void StartAction()
+    public void StartAction()
     {
         state = State.RotatingForward;
         rotationForwardTimer = rotationPercent * rotationForwardTime;
     }
 
-    public override void EndAction()
+    public void EndAction()
     {
         state = State.RotatingBack;
         rotationBackwardsTimer = rotationPercent * rotationBackwardsTime;
@@ -243,7 +244,8 @@ public class RotateBeamAction : TargetAction
 <pre><code class="c#">using UnityEngine;
 using System.Collections;
 
-public class MoveAction : TargetAction
+// moves object to specified position when triggered
+public class MoveAction : MonoBehaviour, TargetAction
 {
     private enum State { MovingForward, MovingBack, Waiting, Stationary };
 
@@ -266,8 +268,9 @@ public class MoveAction : TargetAction
         originalPosition = transform.position;
         currentPosition = originalPosition;
     }
-
-    // interpolate position between fixed updates
+    
+    // interpolate position between fixed updates which allows for smoother motion at
+    // higher framerates but retains the better accuracy of calculating movement on FixedUpdate
     private void Update()
     {
         float t = ((Time.time - Time.fixedTime) / Time.fixedDeltaTime);
@@ -275,10 +278,12 @@ public class MoveAction : TargetAction
         transform.position = pos;
     }
 
+
+    // never move the object on FixedUpdate, only calculate next position which the actual
+    // position is then interpolated to in the Update function
     private void FixedUpdate()
     {
         oldPosition = currentPosition;
-        transform.position = currentPosition;
 
         switch (state)
         {
@@ -309,12 +314,6 @@ public class MoveAction : TargetAction
                 }
                 break;
         }
-
-        // do not actually move the object on FixedUpdate
-        // only calculate next position for Update to interpolate
-        // the position to
-        currentPosition = transform.position;
-        transform.position = oldPosition;
     }
 
     // when the player respawns, reset
@@ -329,11 +328,11 @@ public class MoveAction : TargetAction
 
     private void Move()
     {
-        transform.position = Vector3.Lerp(originalPosition, moveTo.position,
+        currentPosition = Vector3.Lerp(originalPosition, moveTo.position,
             Mathf.Clamp01(moveTimer / moveTime));
     }
 
-    public override void StartAction()
+    public void StartAction()
     {
         ++connectedHooks;
 
@@ -344,29 +343,22 @@ public class MoveAction : TargetAction
         }
     }
 
-    public override void EndAction()
+    public void EndAction()
     {
         --connectedHooks;
 
         // only react when the last hook has been disconnected
         if (moveBack && connectedHooks == 0)
         {
-            if (moveTimer &gt;= moveTime)
-            {
-                state = State.Waiting;
-            }
-            else
-            {
-                state = State.MovingBack;
-            }
+            state = moveTimer &gt;= moveTime ? State.Waiting : State.MovingBack;
         }
     }
 }
 </code></pre>
 </div>
-<div class="back"><a href="/">&laquo; Back</a></div>
 </div>
 
+<div class="back"><a href="/">&laquo; Back</a></div>
         </section>
       </div>
     </div>
