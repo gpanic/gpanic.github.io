@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Gregor Panič - Game Developer</title>
+    <title>Gregor Panič - Video Game Developer</title>
 
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -19,135 +19,340 @@
         <div class="row">
         <div class="header">
           <div class="number">06</div>
-          <div class="name">Crouching system (Unity C#)</div>
+          <div class="name">Trigger and action system (Unity C#)</div>
           <div class="back"><a href="/">&laquo; Back</a></div>
         </div>
         <div class="description">
           <h3>Description</h3>
           <p>
-            In the game <a href="http://www.welkinroad.com/">Welkin Road</a> I wanted to make the player crouch mid-air by pulling
-            up their legs but crouch normally by performing a squat when standing. The system shown bellow handles both ways
-            of crouching by moving the character controller and adjusting its size to perform the crouch. Various special cirumstances
-            are considered on the uncrouch.
+            A system of different triggers that can trigger different actions. The abstract class TargetAction allows for the decoupling of actions from their triggers.
           </p>
-          <a href="https://github.com/gpanic/code-samples/tree/master/CodeSample6/CrouchingSystem" class="button">GitHub</a>
+          <a href="https://github.com/gpanic/code-samples/tree/master/CodeSample6/TriggersAndActions" class="button">GitHub</a>
         </div>
       </div>
 
 <div class="row">
 <div class="code-sample">
-<h3>The collected data</h3>
+<h3>TargetAction.cs</h3>
 <pre><code class="c#">using UnityEngine;
 using System.Collections;
 
-// partial section of the whole MovementController script
-public class MovementController : MonoBehaviour {
+public interface TargetAction
+{
+    void StartAction();
+    void EndAction();
+}
+</code></pre>
+</div>
+</div>
 
-    public float crouchHeight = 1.0f; // height of controller when crouched
+<div class="row">
+<div class="code-sample">
+<h3>SpaceTrigger.cs</h3>
+<pre><code class="c#">using UnityEngine;
+using System.Collections;
 
-    private CharacterController characterController;
-    private float controllerHeight;
-    private float heightDifference;
-    private float controllerSkinWidth = 0.08f;
-    private bool crouchedWhileAirborne = false;
-    private bool crouching = false;
-    private float crouchCameraChange = 0;
-    private bool couldNotUncrouch = false;
-
-    // triggers are the same shape and size as the character controller, positioned so they
-    // can detect objects above and below the player object
-
-    // detects weather any object is blocking the uncrouch
-    private CollisionDetector crouchCollisionTop;
-
-    // used to determine distance to floor
-    private CollisionDetector crouchCollisionBottom;
-
-    private Vector3 currentPos;
+// triggers all actions on a specified target when the player enters the trigger space
+public class SpaceTrigger : MonoBehaviour
+{
+    public GameObject target;
+    public bool triggerStartAction = true;
+    public bool triggerEndAction = true;
+    private TargetAction[] targetActions = new TargetAction[0];
 
     private void Start()
     {
-        characterController = GetComponent&lt;CharacterController&gt;();
-        crouchCollisionTop = GameObject.Find("collision_detector_top").
-            GetComponent&lt;CollisionDetector&gt;();
-        crouchCollisionBottom = GameObject.Find("collision_detector_bottom").
-            GetComponent&lt;CollisionDetector&gt;();
-        controllerHeight = characterController.height;
-        heightDifference = (controllerHeight - crouchHeight);
-    }
-
-    private void Crouch()
-    {
-        crouching = true;
-        characterController.height = crouchHeight;
-
-        if (characterController.isGrounded)
+        if (target)
         {
-            // squat by moving the controller down by half the height difference
-            // so he's at the floor
-            characterController.center = new Vector3(0, -heightDifference / 2, 0);
-        }
-        else
-        {
-            // crouch in air by pulling legs up - move controller up by half
-            // of the height difference
-            crouchedWhileAirborne = true;
-            characterController.center = new Vector3(0, heightDifference / 2, 0);
-
-            // since the controller is now positioned higher, move the top collision
-            // trigger up as well
-            crouchCollisionTop.gameObject.transform.localPosition
-                += new Vector3(0, heightDifference, 0);
+            targetActions = target.GetComponents&lt;TargetAction&gt;();
         }
     }
 
-    private void Uncrouch()
+    private void OnTriggerEnter(Collider col)
     {
-        // remember that it wasn't possible to uncrouch so that it can be done later
-        couldNotUncrouch = crouchCollisionTop.IsColliding;
-        if (crouchCollisionTop.IsColliding) return;
-
-        if (crouchedWhileAirborne)
+        if (col.tag == Tags.player && triggerStartAction)
         {
-            // move the top collision trigger back
-            crouchCollisionTop.gameObject.transform.localPosition
-                += new Vector3(0, -heightDifference, 0);
-            if (!characterController.isGrounded)
+            foreach (TargetAction ta in targetActions)
             {
-                if (crouchCollisionBottom.IsColliding)
+                ta.StartAction();
+            }
+        }
+    }
+
+    private void OnTriggerExit(Collider col)
+    {
+        if (col.tag == Tags.player && triggerEndAction)
+        {
+            foreach (TargetAction ta in targetActions)
+            {
+                ta.EndAction();
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>TargetTrigger.cs</h3>
+<pre><code class="c#">using UnityEngine;
+using System.Collections;
+
+// triggers all actions on a specified game object when player connects to the target
+public class TargetTrigger : HookableObject
+{
+    public GameObject target;
+    public bool triggetStartAction = true;
+    public bool triggetEndAction = true;
+    private TargetAction[] targetActions = new TargetAction[0];
+
+    void Start()
+    {
+        if (target)
+        {
+            targetActions = target.GetComponents&lt;TargetAction&gt;();
+        }
+    }
+
+    public override void Unhhooked(HookController controller, HookState state)
+    {
+        if (triggetEndAction)
+        {
+            foreach (TargetAction ta in targetActions)
+            {
+                ta.EndAction();
+            }
+        }
+    }
+
+    public override void Hooked(HookController controller, HookState state)
+    {
+        if (triggetStartAction)
+        {
+            foreach (TargetAction ta in targetActions)
+            {
+                ta.StartAction();
+            }
+        }
+    }
+}</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>RotateBeamAction.cs</h3>
+<pre><code class="c#">using UnityEngine;
+using System.Collections;
+
+// rotates beam around a pivot point when triggered
+public class RotateBeamAction : MonoBehaviour, TargetAction
+{
+    private enum State { RotatingForward, RotatingBack, Stationary };
+
+    public Vector3 rotationAxis = new Vector3(1, 0, 0);
+    public float rotationAmount = 90;
+    public float rotationForwardTime = 4.0f;
+    public float rotationBackwardsTime = 4.0f;
+
+    private Transform pivot;
+    private float rotationForwardTimer = 0.0f;
+    private float rotationBackwardsTimer = 0.0f;
+    private Quaternion fromRotation;
+    private Quaternion toRotation;
+    private Quaternion currentRotation;
+    private Vector3 originalPivotPosition;
+    private State state = State.Stationary;
+
+    // we want to always rotate in a single direction with the same speed
+    // we use rotationPercent to mark rotation progress and to translate
+    // between two possibly different rotation times
+    private float rotationPercent = 0.0f;
+
+    private void Start()
+    {
+        pivot = transform.FindChild("pivot").GetComponent&lt;Transform&gt;();
+        fromRotation = transform.localRotation;
+        toRotation = fromRotation * Quaternion.AngleAxis(rotationAmount,
+            transform.InverseTransformDirection(rotationAxis));
+        originalPivotPosition = pivot.position;
+    }
+
+    private void Update()
+    {
+        switch (state)
+        {
+            case State.RotatingForward:
+                RotateForwardAroundPivot();
+                break;
+            case State.RotatingBack:
+                RotateBackAroundPivot();
+                break;
+        }
+    }
+
+    private void RotateForwardAroundPivot()
+    {
+        RotateAroundPivot();
+        rotationForwardTimer += Time.deltaTime;
+        rotationPercent = rotationForwardTimer / rotationForwardTime;
+        if (rotationForwardTimer &gt;= rotationForwardTime)
+        {
+            rotationForwardTimer = 0.0f;
+            state = State.Stationary;
+        }
+    }
+
+    private void RotateBackAroundPivot()
+    {
+        RotateAroundPivot();
+        rotationBackwardsTimer -= Time.deltaTime;
+        rotationPercent = rotationBackwardsTimer / rotationBackwardsTime;
+        if (rotationBackwardsTimer &lt;= 0)
+        {
+            rotationBackwardsTimer = rotationBackwardsTime;
+            state = State.Stationary;
+        }
+    }
+
+    private void RotateAroundPivot()
+    {
+        transform.localRotation = Quaternion.Lerp(fromRotation, toRotation,
+            Mathf.Clamp01(rotationPercent));
+        transform.position += originalPivotPosition - pivot.position;
+    }
+
+    public void StartAction()
+    {
+        state = State.RotatingForward;
+        rotationForwardTimer = rotationPercent * rotationForwardTime;
+    }
+
+    public void EndAction()
+    {
+        state = State.RotatingBack;
+        rotationBackwardsTimer = rotationPercent * rotationBackwardsTime;
+    }
+}</code></pre>
+</div>
+</div>
+
+<div class="row">
+<div class="code-sample">
+<h3>MoveAction.cs</h3>
+<pre><code class="c#">using UnityEngine;
+using System.Collections;
+
+// moves object to specified position when triggered
+public class MoveAction : MonoBehaviour, TargetAction
+{
+    private enum State { MovingForward, MovingBack, Waiting, Stationary };
+
+    public Transform moveTo;
+    public bool moveBack = true;
+    public float moveTime = 3.0f;
+    public float waitTime = 2.5f;
+
+    private Vector3 originalPosition;
+    private float moveTimer = 0.0f;
+    private float waitTimer = 0.0f;
+    private int connectedHooks;
+    private Vector3 currentPosition;
+    private Vector3 oldPosition;
+    private State state = State.Stationary;
+
+    private void Start()
+    {
+        GameObject.Find("killplanes").GetComponent&lt;Killplane&gt;().OnTeleport += OnTeleport;
+        originalPosition = transform.position;
+        currentPosition = originalPosition;
+    }
+    
+    // interpolate position between fixed updates which allows for smoother motion at
+    // higher framerates but retains the better accuracy of calculating movement on FixedUpdate
+    private void Update()
+    {
+        float t = ((Time.time - Time.fixedTime) / Time.fixedDeltaTime);
+        Vector3 pos = Vector3.Lerp(oldPosition, currentPosition, t);
+        transform.position = pos;
+    }
+
+
+    // never move the object on FixedUpdate, only calculate next position which the actual
+    // position is then interpolated to in the Update function
+    private void FixedUpdate()
+    {
+        oldPosition = currentPosition;
+
+        switch (state)
+        {
+            case State.MovingForward:
+                moveTimer += Time.deltaTime;
+                Move();
+                if (moveTimer &gt;= moveTime)
                 {
-                    // the player crouched in air, then uncrouched before fully landing, calculate
-                    // remaining distance to the floor and use it to move the whole player object
-                    // back up
-                    float distanceToFloor = -(crouchCollisionBottom.CollidingObject.
-                        ClosestPointOnBounds(transform.position) - transform.position).y;
-                    float change = heightDifference + controllerSkinWidth - distanceToFloor;
-                    transform.Translate(Vector3.up * change);
-                    currentPos = transform.position;
-
-                    // move the camera back to the position before the uncrouch so it
-                    // can animate smoothly
-                    crouchCameraChange = -change;
+                    state = State.Stationary;
+                    moveTimer = moveTime;
                 }
-            }
-            else
-            {
-                // since the controller was moved up and will be moved back down move the whole
-                // player object up by the same amount (move player up to standing position then
-                // extend legs back to the ground)
-                transform.Translate(Vector3.up * heightDifference);
-                currentPos = transform.position;
-                crouchCameraChange = -heightDifference;
-            }
-            crouchedWhileAirborne = false;
+                break;
+            case State.Waiting:
+                waitTimer += Time.deltaTime;
+                if (waitTimer &gt;= waitTime)
+                {
+                    state = State.MovingBack;
+                    waitTimer = 0.0f;
+                }
+                break;
+            case State.MovingBack:
+                moveTimer -= Time.deltaTime;
+                Move();
+                if (moveTimer &lt;= 0.0f)
+                {
+                    state = State.Stationary;
+                    moveTimer = 0.0f;
+                }
+                break;
         }
-
-        // uncrouch
-        crouching = false;
-        characterController.center = Vector3.zero;
-        characterController.height = controllerHeight;
     }
 
+    // when the player respawns, reset
+    private void OnTeleport()
+    {
+        currentPosition = originalPosition;
+        transform.position = originalPosition;
+        state = State.Stationary;
+        moveTimer = 0;
+        waitTimer = 0;
+    }
+
+    private void Move()
+    {
+        currentPosition = Vector3.Lerp(originalPosition, moveTo.position,
+            Mathf.Clamp01(moveTimer / moveTime));
+    }
+
+    public void StartAction()
+    {
+        ++connectedHooks;
+
+        // do not react to a second hook being connected
+        if (transform.position == originalPosition && connectedHooks == 1)
+        {
+            state = State.MovingForward;
+        }
+    }
+
+    public void EndAction()
+    {
+        --connectedHooks;
+
+        // only react when the last hook has been disconnected
+        if (moveBack && connectedHooks == 0)
+        {
+            state = moveTimer &gt;= moveTime ? State.Waiting : State.MovingBack;
+        }
+    }
 }
 </code></pre>
 </div>
