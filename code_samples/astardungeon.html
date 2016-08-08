@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Gregor Panič - Gameplay Programmer</title>
+  <meta name="description" content="">
+
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/monokai.css">
+  <link rel="canonical" href="http://gpanic.github.io/code_samples/astardungeon.html">
+  <link rel="alternate" type="application/rss+xml" title="Gregor Panič - Gameplay Programmer" href="http://gpanic.github.io/feed.xml">
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,700,600italic,600,800,800italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+</head>
+
+
+  <body>
+
+    <header class="home-header">
+    <div class="container">
+        <div class="outer">
+            <div class="inner">
+                <div class="name">Gregor Panič</div>
+                <div class="title">Gameplay Programmer</div>
+                <div class="nav">
+                    <a class="btn btn-blue " href="/" role="button">Work</a>
+                    <a class="btn btn-blue " href="/projects.html" role="button">Projects</a>
+                    <a class="btn btn-blue " href="/about.html" role="button">About</a>
+                    <a class="btn btn-blue " href="/resume.html" role="button">Résumé</a>
+                    <a class="btn btn-blue " href="/code_samples.html" role="button">Code Samples</a>
+                    <!--<a class="btn btn-blue" href="mailto:gregor.panic@gmail.com" role="button">Contact</a>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!--
+<header class="home-header-2">
+    <div class="container">
+        <div class="title">
+            <div class="name">Gregor Panič</div>
+            <div class="job">Gameplay Programmer</div>
+        </div>
+        <div class="nav">
+            <a href="/" role="button">Work</a>
+            <a href="/about.html" role="button">About</a>
+            <a href="/resume.html" role="button">Resume</a>
+            <a href="mailto:gregor.panic@gmail.com" role="button">Contact</a>
+        </div>
+    </div>
+</header>
+-->
+    
+    <div class="content">
+        <div class="content-inner">
+    <div class="container">
+        <h1>AStarDungeon</h1>
+
+        <h3>Programming language:</h3>
+        <p>
+        	C++
+        </p>
+
+        <h3>Github:</h3>
+        <p>
+        <a href="https://github.com/gpanic/AStarDungeon">https://github.com/gpanic/AStarDungeon</a>
+        </p>
+
+        <h3>Description</h3>
+        <p>
+          A simple A* implementation used in a programming challenge. It works on a map in form of a grid,
+          with marked start (S), goal (G) and wall (W) tiles. It finds the shortest path and prints an updated map.
+      	</p>
+      	<p>
+          The class AStar is a generic implementation of the A* search algorithm. The class AStarDungeon contains the logic to process the map, use AStar to find the path and print the updated map.
+      	</p>
+
+      	<h3>Input and output</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="n">WW</span><span class="p">..</span><span class="n">W</span><span class="p">...............</span>            <span class="n">WW</span><span class="p">..</span><span class="n">W</span><span class="p">...............</span>
+<span class="n">WWW</span><span class="p">.</span><span class="n">W</span><span class="p">....</span><span class="n">G</span><span class="p">.</span><span class="n">WW</span><span class="p">.......</span>            <span class="n">WWW</span><span class="p">.</span><span class="n">W</span><span class="p">..</span><span class="o">**</span><span class="n">G</span><span class="p">.</span><span class="n">WW</span><span class="p">.......</span>
+<span class="n">WWW</span><span class="p">.</span><span class="n">W</span><span class="p">...</span><span class="n">WWWWW</span><span class="p">.</span><span class="n">WWW</span><span class="p">...</span>            <span class="n">WWW</span><span class="p">.</span><span class="n">W</span><span class="p">..</span><span class="o">*</span><span class="n">WWWWW</span><span class="p">.</span><span class="n">WWW</span><span class="p">...</span>
+<span class="p">...............</span><span class="n">WW</span><span class="p">.</span><span class="n">W</span><span class="p">.</span>            <span class="p">.......</span><span class="o">****</span><span class="p">....</span><span class="n">WW</span><span class="p">.</span><span class="n">W</span><span class="p">.</span>
+<span class="p">..</span><span class="n">WWW</span><span class="p">...</span><span class="n">WW</span><span class="p">..</span><span class="n">WWWWW</span><span class="p">.</span><span class="n">WW</span>            <span class="p">..</span><span class="n">WWW</span><span class="p">...</span><span class="n">WW</span><span class="o">*</span><span class="p">.</span><span class="n">WWWWW</span><span class="p">.</span><span class="n">WW</span>
+<span class="p">....</span><span class="n">W</span><span class="p">...</span><span class="n">W</span><span class="p">...</span><span class="n">WWWWW</span><span class="p">..</span><span class="n">W</span>            <span class="p">....</span><span class="n">W</span><span class="p">...</span><span class="n">W</span><span class="p">.</span><span class="o">*</span><span class="p">.</span><span class="n">WWWWW</span><span class="p">..</span><span class="n">W</span>
+<span class="n">WW</span><span class="p">..</span><span class="n">W</span><span class="p">..</span><span class="n">WWW</span><span class="p">..</span><span class="n">WWWWW</span><span class="p">..</span><span class="n">W</span>            <span class="n">WW</span><span class="p">..</span><span class="n">W</span><span class="p">..</span><span class="n">WWW</span><span class="o">*</span><span class="p">.</span><span class="n">WWWWW</span><span class="p">..</span><span class="n">W</span>
+<span class="n">WW</span><span class="p">..</span><span class="n">W</span><span class="p">..</span><span class="n">WWW</span><span class="p">..</span><span class="n">W</span><span class="p">.......</span>            <span class="n">WW</span><span class="p">..</span><span class="n">W</span><span class="p">..</span><span class="n">WWW</span><span class="o">*</span><span class="p">.</span><span class="n">W</span><span class="p">.......</span>
+<span class="p">....</span><span class="n">W</span><span class="p">...............</span>            <span class="p">....</span><span class="n">W</span><span class="p">.....</span><span class="o">****</span><span class="p">......</span>
+<span class="n">WWWWWWWWWWWWW</span><span class="p">..</span><span class="n">WWW</span><span class="p">.</span><span class="n">W</span>            <span class="n">WWWWWWWWWWWWW</span><span class="o">*</span><span class="p">.</span><span class="n">WWW</span><span class="p">.</span><span class="n">W</span>
+<span class="p">........</span><span class="n">W</span><span class="p">..........</span><span class="n">W</span>            <span class="p">........</span><span class="n">W</span><span class="p">.</span><span class="o">****</span><span class="p">.....</span><span class="n">W</span>
+<span class="n">WWWW</span><span class="p">..</span><span class="n">WWWW</span><span class="p">..</span><span class="n">WW</span><span class="p">..</span><span class="n">WWWW</span>            <span class="n">WWWW</span><span class="p">..</span><span class="n">WWWW</span><span class="o">*</span><span class="p">.</span><span class="n">WW</span><span class="p">..</span><span class="n">WWWW</span>
+<span class="p">.............</span><span class="n">W</span><span class="p">..</span><span class="n">W</span><span class="p">...</span>            <span class="p">......</span><span class="o">*****</span><span class="p">..</span><span class="n">W</span><span class="p">..</span><span class="n">W</span><span class="p">...</span>
+<span class="n">WW</span><span class="p">.</span><span class="n">WWW</span><span class="p">..</span><span class="n">WWW</span><span class="p">..</span><span class="n">W</span><span class="p">..</span><span class="n">W</span><span class="p">.</span><span class="n">WW</span>            <span class="n">WW</span><span class="p">.</span><span class="n">WWW</span><span class="o">*</span><span class="p">.</span><span class="n">WWW</span><span class="p">..</span><span class="n">W</span><span class="p">..</span><span class="n">W</span><span class="p">.</span><span class="n">WW</span>
+<span class="n">WW</span><span class="p">.</span><span class="n">W</span><span class="p">................</span>            <span class="n">WW</span><span class="p">.</span><span class="n">W</span><span class="p">..</span><span class="o">*</span><span class="p">.............</span>
+<span class="n">WW</span><span class="p">.....</span><span class="n">WWWWW</span><span class="p">..</span><span class="n">WWWWWW</span>            <span class="n">WW</span><span class="p">....</span><span class="o">*</span><span class="n">WWWWW</span><span class="p">..</span><span class="n">WWWWWW</span>
+<span class="n">W</span><span class="p">.......</span><span class="n">SW</span><span class="p">......</span><span class="n">WWW</span><span class="p">.</span>            <span class="n">W</span><span class="p">.....</span><span class="o">**</span><span class="n">SW</span><span class="p">......</span><span class="n">WWW</span><span class="p">.</span>
+<span class="n">WW</span><span class="p">.......</span><span class="n">WW</span><span class="p">.......</span><span class="n">W</span><span class="p">.</span>            <span class="n">WW</span><span class="p">.......</span><span class="n">WW</span><span class="p">.......</span><span class="n">W</span><span class="p">.</span>
+<span class="n">W</span><span class="p">........</span><span class="n">WW</span><span class="p">...</span><span class="n">WWWWW</span><span class="p">.</span>            <span class="n">W</span><span class="p">........</span><span class="n">WW</span><span class="p">...</span><span class="n">WWWWW</span><span class="p">.</span>
+<span class="p">..................</span><span class="n">W</span><span class="p">.</span>            <span class="p">..................</span><span class="n">W</span><span class="p">.</span>
+                                <span class="n">Length</span><span class="o">:</span> <span class="mi">32</span></code></pre></figure>
+
+
+      	<h3>AStar.h</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#pragma once
+#include &lt;queue&gt;
+#include &lt;deque&gt;
+#include &lt;unordered_set&gt;
+#include &lt;unordered_map&gt;
+</span>
+<span class="k">class</span> <span class="nc">AStar</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">class</span> <span class="nc">Node</span>
+    <span class="p">{</span>
+    <span class="k">public</span><span class="o">:</span>
+        <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+        <span class="kt">float</span> <span class="n">f</span><span class="p">;</span> <span class="c1">// estimated cost
+</span>        <span class="kt">float</span> <span class="n">g</span><span class="p">;</span> <span class="c1">// actual cost to get here
+</span>
+        <span class="n">Node</span><span class="p">();</span>
+        <span class="n">Node</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">);</span>
+
+        <span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+        <span class="kt">bool</span> <span class="k">operator</span><span class="o">!=</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+
+        <span class="c1">// hashing functor
+</span>        <span class="k">struct</span> <span class="n">Hash</span>
+        <span class="p">{</span>
+            <span class="c1">// use coordinates for equality, a simple noncommutative hash function
+</span>            <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span>
+            <span class="p">{</span>
+                <span class="k">return</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">node</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">node</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">};</span>
+
+        <span class="c1">// comparison functor
+</span>        <span class="k">struct</span> <span class="n">GreaterByCost</span>
+        <span class="p">{</span>
+            <span class="kt">bool</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">lhs</span><span class="p">,</span> <span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">rhs</span><span class="p">)</span> <span class="k">const</span>
+            <span class="p">{</span>
+                <span class="k">return</span> <span class="n">lhs</span><span class="p">.</span><span class="n">f</span> <span class="o">&gt;</span> <span class="n">rhs</span><span class="p">.</span><span class="n">f</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">};</span>
+    <span class="p">};</span>
+
+<span class="k">protected</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">FindPath</span><span class="p">(</span><span class="n">Node</span> <span class="n">start</span><span class="p">,</span> <span class="n">Node</span> <span class="n">goal</span><span class="p">);</span>
+    <span class="k">virtual</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">GetSuccessors</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">float</span> <span class="n">HeuristicFunction</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node1</span><span class="p">,</span> <span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">deque</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">openList</span><span class="p">;</span> <span class="c1">// nodes to visit
+</span>    <span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="o">::</span><span class="n">Hash</span><span class="o">&gt;</span> <span class="n">closedList</span><span class="p">;</span> <span class="c1">// visited nodes
+</span>    <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="o">::</span><span class="n">Hash</span><span class="o">&gt;</span> <span class="n">cameFrom</span><span class="p">;</span> <span class="c1">// backwards connections
+</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">ReconstructPath</span><span class="p">(</span><span class="n">Node</span> <span class="n">currentNode</span><span class="p">);</span>
+<span class="p">};</span></code></pre></figure>
+
+
+		<h3>AStar.cpp</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include "AStar.h"
+</span>
+<span class="n">AStar</span><span class="o">::</span><span class="n">Node</span><span class="o">::</span><span class="n">Node</span><span class="p">()</span> <span class="o">:</span> <span class="n">x</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">y</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{}</span>
+<span class="n">AStar</span><span class="o">::</span><span class="n">Node</span><span class="o">::</span><span class="n">Node</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="o">:</span> <span class="n">x</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">y</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="p">{}</span>
+
+<span class="kt">bool</span> <span class="n">AStar</span><span class="o">::</span><span class="n">Node</span><span class="o">::</span><span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">==</span> <span class="n">node</span><span class="p">.</span><span class="n">x</span> <span class="o">&amp;&amp;</span> <span class="n">y</span> <span class="o">==</span> <span class="n">node</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">AStar</span><span class="o">::</span><span class="n">Node</span><span class="o">::</span><span class="k">operator</span><span class="o">!=</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="o">*</span><span class="k">this</span> <span class="o">==</span> <span class="n">node</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// assumes monotonic heuristic, uses functions push_heap and pop_heap
+// to get the node with the smallest estimate
+</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">AStar</span><span class="o">::</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">AStar</span><span class="o">::</span><span class="n">FindPath</span><span class="p">(</span><span class="n">Node</span> <span class="n">start</span><span class="p">,</span> <span class="n">Node</span> <span class="n">goal</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">start</span><span class="p">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">start</span><span class="p">.</span><span class="n">g</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">openList</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">start</span><span class="p">);</span>
+
+    <span class="n">Node</span> <span class="n">currentNode</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">openList</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="c1">// get the node with the smallest estimate
+</span>        <span class="n">std</span><span class="o">::</span><span class="n">pop_heap</span><span class="p">(</span><span class="n">openList</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">openList</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">Node</span><span class="o">::</span><span class="n">GreaterByCost</span><span class="p">());</span>
+        <span class="n">currentNode</span> <span class="o">=</span> <span class="n">openList</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+        <span class="n">openList</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">currentNode</span> <span class="o">==</span> <span class="n">goal</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+
+        <span class="c1">// node was visited
+</span>        <span class="n">closedList</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">currentNode</span><span class="p">);</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">successors</span> <span class="o">=</span> <span class="n">GetSuccessors</span><span class="p">(</span><span class="n">currentNode</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">Node</span> <span class="n">successor</span> <span class="o">:</span> <span class="n">successors</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// skip already visited nodes
+</span>            <span class="k">if</span> <span class="p">(</span><span class="n">closedList</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">successor</span><span class="p">)</span> <span class="o">!=</span> <span class="n">closedList</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="k">continue</span><span class="p">;</span>
+
+            <span class="c1">// remember connection to successor
+</span>            <span class="n">cameFrom</span><span class="p">[</span><span class="n">successor</span><span class="p">]</span> <span class="o">=</span> <span class="n">currentNode</span><span class="p">;</span>
+
+            <span class="c1">// update sucessor estimate and cost
+</span>            <span class="n">successor</span><span class="p">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">currentNode</span><span class="p">.</span><span class="n">g</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// always move by one tile
+</span>            <span class="n">successor</span><span class="p">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">successor</span><span class="p">.</span><span class="n">g</span> <span class="o">+</span> <span class="n">HeuristicFunction</span><span class="p">(</span><span class="n">successor</span><span class="p">,</span> <span class="n">goal</span><span class="p">);</span>
+
+            <span class="c1">// add successor to the open list if wasn't added in a previous iteration
+</span>            <span class="k">if</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">find</span><span class="p">(</span><span class="n">openList</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">openList</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">successor</span><span class="p">)</span> <span class="o">==</span> <span class="n">openList</span><span class="p">.</span><span class="n">end</span><span class="p">())</span>
+            <span class="p">{</span>
+                <span class="n">openList</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">successor</span><span class="p">);</span>
+                <span class="n">std</span><span class="o">::</span><span class="n">push_heap</span><span class="p">(</span><span class="n">openList</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">openList</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">Node</span><span class="o">::</span><span class="n">GreaterByCost</span><span class="p">());</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">ReconstructPath</span><span class="p">(</span><span class="n">currentNode</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">AStar</span><span class="o">::</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">AStar</span><span class="o">::</span><span class="n">ReconstructPath</span><span class="p">(</span><span class="n">Node</span> <span class="n">currentNode</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">path</span><span class="p">;</span>
+    <span class="n">path</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">currentNode</span><span class="p">);</span>
+
+    <span class="c1">// go through the list of backwards connections until the starting node
+</span>    <span class="k">while</span> <span class="p">(</span><span class="n">cameFrom</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">currentNode</span><span class="p">)</span> <span class="o">!=</span> <span class="n">cameFrom</span><span class="p">.</span><span class="n">end</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">currentNode</span> <span class="o">=</span> <span class="n">cameFrom</span><span class="p">[</span><span class="n">currentNode</span><span class="p">];</span>
+        <span class="n">path</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">currentNode</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">path</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+
+		<h3>AStarDungeon.h</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#pragma once
+#include "AStar.h"
+#include &lt;fstream&gt;
+#include &lt;string&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;tuple&gt;
+</span>
+<span class="k">class</span> <span class="nc">AStarDungeon</span> <span class="o">:</span> <span class="n">AStar</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="kt">bool</span> <span class="n">LoadMap</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mapFile</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="n">MarkPathToGoal</span><span class="p">();</span>
+    <span class="kt">void</span> <span class="n">PrintMap</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">GetPathLength</span><span class="p">();</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="k">enum</span> <span class="n">TileType</span> <span class="p">{</span> <span class="n">typeNormal</span> <span class="o">=</span> <span class="sc">'.'</span><span class="p">,</span> <span class="n">typeWall</span> <span class="o">=</span> <span class="sc">'W'</span><span class="p">,</span> <span class="n">typeGoal</span> <span class="o">=</span> <span class="sc">'G'</span><span class="p">,</span> <span class="n">typeStart</span> <span class="o">=</span> <span class="sc">'S'</span><span class="p">,</span> <span class="n">typePath</span> <span class="o">=</span> <span class="sc">'*'</span><span class="p">,</span> <span class="n">typeInvalid</span> <span class="o">=</span> <span class="sc">'I'</span> <span class="p">};</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;&gt;</span> <span class="n">map</span><span class="p">;</span>
+    <span class="n">Node</span> <span class="n">startNode</span><span class="p">;</span>
+    <span class="n">Node</span> <span class="n">goalNode</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">mapLoaded</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">path</span><span class="p">;</span>
+
+    
+    <span class="kt">bool</span> <span class="n">IsCharValid</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+    <span class="n">TileType</span> <span class="n">GetTileType</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">CanMoveTo</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">GetSuccessors</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span> <span class="n">override</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">HeuristicFunction</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node1</span><span class="p">,</span> <span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node2</span><span class="p">)</span> <span class="k">const</span> <span class="n">override</span><span class="p">;</span>
+<span class="p">};</span></code></pre></figure>
+
+
+		<h3>AStarDungeon.cpp</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include "AStarDungeon.h"
+</span>
+<span class="kt">bool</span> <span class="n">AStarDungeon</span><span class="o">::</span><span class="n">LoadMap</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">mapFile</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">ifstream</span> <span class="n">file</span><span class="p">(</span><span class="n">mapFile</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">file</span><span class="p">)</span> <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">line</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">foundStart</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">foundGoal</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">file</span> <span class="o">&gt;&gt;</span> <span class="n">line</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span> <span class="n">mapRow</span><span class="p">;</span> <span class="c1">// each line represents a map row
+</span>        <span class="k">for</span> <span class="p">(</span><span class="kt">char</span> <span class="n">c</span> <span class="o">:</span> <span class="n">line</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">IsCharValid</span><span class="p">(</span><span class="n">c</span><span class="p">))</span> <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="o">==</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeStart</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">foundStart</span><span class="p">)</span> <span class="c1">// allow only one start
+</span>                <span class="p">{</span>
+                    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">else</span> 
+                <span class="p">{</span>
+                    <span class="n">startNode</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">mapRow</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+                    <span class="n">startNode</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">map</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+                    <span class="n">foundStart</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="o">==</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeGoal</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">foundGoal</span><span class="p">)</span> <span class="c1">// allow only one goal
+</span>                <span class="p">{</span>
+                    <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">else</span>
+                <span class="p">{</span>
+                    <span class="n">goalNode</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">mapRow</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+                    <span class="n">goalNode</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">map</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+                    <span class="n">foundGoal</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="n">mapRow</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">map</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">mapRow</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">mapLoaded</span> <span class="o">=</span> <span class="n">foundStart</span> <span class="o">&amp;&amp;</span> <span class="n">foundGoal</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">mapLoaded</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AStarDungeon</span><span class="o">::</span><span class="n">MarkPathToGoal</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">mapLoaded</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">FindPath</span><span class="p">(</span><span class="n">startNode</span><span class="p">,</span> <span class="n">goalNode</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">Node</span> <span class="n">n</span> <span class="o">:</span> <span class="n">path</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">char</span> <span class="o">&amp;</span><span class="n">tile</span> <span class="o">=</span> <span class="n">map</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">y</span><span class="p">).</span><span class="n">at</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">x</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">tile</span> <span class="o">!=</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeGoal</span> <span class="o">&amp;&amp;</span> <span class="n">tile</span> <span class="o">!=</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeStart</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">tile</span> <span class="o">=</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typePath</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">AStarDungeon</span><span class="o">::</span><span class="n">PrintMap</span><span class="p">()</span> <span class="k">const</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">row</span> <span class="o">=</span> <span class="n">map</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">row</span> <span class="o">!=</span> <span class="n">map</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">row</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">tile</span> <span class="o">=</span> <span class="n">row</span><span class="o">-&gt;</span><span class="n">begin</span><span class="p">();</span> <span class="n">tile</span> <span class="o">!=</span> <span class="n">row</span><span class="o">-&gt;</span><span class="n">end</span><span class="p">();</span> <span class="o">++</span><span class="n">tile</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">tile</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">AStarDungeon</span><span class="o">::</span><span class="n">GetPathLength</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">mapLoaded</span><span class="p">)</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">path</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// we exclude the starting node
+</span><span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">AStarDungeon</span><span class="o">::</span><span class="n">IsCharValid</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">c</span> <span class="o">==</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeNormal</span> <span class="o">||</span>
+        <span class="n">c</span> <span class="o">==</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeWall</span> <span class="o">||</span>
+        <span class="n">c</span> <span class="o">==</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeGoal</span> <span class="o">||</span>
+        <span class="n">c</span> <span class="o">==</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeStart</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">AStarDungeon</span><span class="o">::</span><span class="n">TileType</span> <span class="n">AStarDungeon</span><span class="o">::</span><span class="n">GetTileType</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+    <span class="k">try</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">TileType</span><span class="o">&gt;</span><span class="p">(</span><span class="n">map</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">y</span><span class="p">).</span><span class="n">at</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">x</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">out_of_range</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeInvalid</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">AStarDungeon</span><span class="o">::</span><span class="n">CanMoveTo</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+    <span class="n">TileType</span> <span class="n">type</span> <span class="o">=</span> <span class="n">GetTileType</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">type</span> <span class="o">!=</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeWall</span> <span class="o">&amp;&amp;</span> <span class="n">type</span> <span class="o">!=</span> <span class="n">TileType</span><span class="o">::</span><span class="n">typeInvalid</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">AStarDungeon</span><span class="o">::</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">AStarDungeon</span><span class="o">::</span><span class="n">GetSuccessors</span><span class="p">(</span><span class="k">const</span> <span class="n">AStarDungeon</span><span class="o">::</span><span class="n">Node</span> <span class="o">&amp;</span><span class="n">node</span><span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+    <span class="n">Node</span> <span class="n">up</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>
+    <span class="o">++</span><span class="n">up</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+    <span class="n">Node</span> <span class="n">right</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>
+    <span class="o">++</span><span class="n">right</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+    <span class="n">Node</span> <span class="n">down</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>
+    <span class="o">--</span><span class="n">down</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+    <span class="n">Node</span> <span class="n">left</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>
+    <span class="o">--</span><span class="n">left</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">successors</span> <span class="o">=</span> <span class="p">{</span> <span class="n">up</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">down</span><span class="p">,</span> <span class="n">left</span> <span class="p">};</span>
+
+    <span class="c1">// get rid of untraversable tiles
+</span>    <span class="k">auto</span> <span class="n">canMoveToLambda</span> <span class="o">=</span> <span class="p">[</span><span class="k">this</span><span class="p">](</span><span class="n">Node</span> <span class="o">&amp;</span><span class="n">n</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="o">!</span><span class="n">CanMoveTo</span><span class="p">(</span><span class="n">n</span><span class="p">);</span> <span class="p">};</span>
+    <span class="n">successors</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">remove_if</span><span class="p">(</span><span class="n">successors</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">successors</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">canMoveToLambda</span><span class="p">),</span> <span class="n">successors</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+    <span class="k">return</span> <span class="n">successors</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// we use manhattan distance because it's monotonic, fast and simple
+</span><span class="kt">float</span> <span class="n">AStarDungeon</span><span class="o">::</span><span class="n">HeuristicFunction</span><span class="p">(</span><span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node1</span><span class="p">,</span> <span class="k">const</span> <span class="n">Node</span> <span class="o">&amp;</span><span class="n">node2</span><span class="p">)</span> <span class="k">const</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="n">node1</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">node2</span><span class="p">.</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">std</span><span class="o">::</span><span class="n">abs</span><span class="p">(</span><span class="n">node1</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">node2</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
+
+		<h3>Main.cpp</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include "AStarDungeon.h"
+#include "AStar.h"
+</span>
+<span class="c1">// execute: astardungeon.exe map.txt
+</span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Pass the path to a valid map as the first argument."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">AStarDungeon</span> <span class="n">pathFinder</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">pathFinder</span><span class="p">.</span><span class="n">LoadMap</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"The provided map was invalid."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">pathFinder</span><span class="p">.</span><span class="n">MarkPathToGoal</span><span class="p">();</span>
+    <span class="n">pathFinder</span><span class="p">.</span><span class="n">PrintMap</span><span class="p">();</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Length: "</span> <span class="o">&lt;&lt;</span> <span class="n">pathFinder</span><span class="p">.</span><span class="n">GetPathLength</span><span class="p">();</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cin</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+    </div>
+</div>
+
+    </div>
+
+    <footer>
+	<div class="container">
+		<ul>
+			<li>Copyright &copy;2016</li>
+			<li>Gregor Panič</li>
+			<li>-</li>
+			<li><a href="mailto:gregor.panic@gmail.com">Email</a></li>
+			<li><a href="http://github.com/gpanic">Github</a></li>
+			<li><a href="http://www.linkedin.com/in/gregorpanic">Linkedin</a></li>
+		</ul>
+	</div>
+</footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+
+  </body>
+
+</html>

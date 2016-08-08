@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Gregor Panič - Gameplay Programmer</title>
+  <meta name="description" content="">
+
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/monokai.css">
+  <link rel="canonical" href="http://gpanic.github.io/code_samples/welkin_road_crouching_system.html">
+  <link rel="alternate" type="application/rss+xml" title="Gregor Panič - Gameplay Programmer" href="http://gpanic.github.io/feed.xml">
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,700,600italic,600,800,800italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+</head>
+
+
+  <body>
+
+    <header class="home-header">
+    <div class="container">
+        <div class="outer">
+            <div class="inner">
+                <div class="name">Gregor Panič</div>
+                <div class="title">Gameplay Programmer</div>
+                <div class="nav">
+                    <a class="btn btn-blue " href="/" role="button">Work</a>
+                    <a class="btn btn-blue " href="/projects.html" role="button">Projects</a>
+                    <a class="btn btn-blue " href="/about.html" role="button">About</a>
+                    <a class="btn btn-blue " href="/resume.html" role="button">Résumé</a>
+                    <a class="btn btn-blue " href="/code_samples.html" role="button">Code Samples</a>
+                    <!--<a class="btn btn-blue" href="mailto:gregor.panic@gmail.com" role="button">Contact</a>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!--
+<header class="home-header-2">
+    <div class="container">
+        <div class="title">
+            <div class="name">Gregor Panič</div>
+            <div class="job">Gameplay Programmer</div>
+        </div>
+        <div class="nav">
+            <a href="/" role="button">Work</a>
+            <a href="/about.html" role="button">About</a>
+            <a href="/resume.html" role="button">Resume</a>
+            <a href="mailto:gregor.panic@gmail.com" role="button">Contact</a>
+        </div>
+    </div>
+</header>
+-->
+    
+    <div class="content">
+        <div class="content-inner">
+    <div class="container">
+        <h1>Crouching system</h1>
+
+        <h3>Project:</h3>
+        <p>
+            <a href="/projects/welkin_road.html">Welkin Road</a>
+        </p>
+
+        <h3>Programming language:</h3>
+        <p>
+        	C#
+        </p>
+
+        <h3>Engine:</h3>
+        <p>
+            Untiy 3D
+        </p>
+
+        <h3>Description</h3>
+        <p>
+            I wanted to make crouching midair more realistic by making it seem like the player pulled their legs up. This requires shrinking the player capsule, then moving its center to move it back into position so it is in line with the camera. Because of these changes, standing up becomes more complicated.
+      	</p>
+
+      	<h3>MovementController.cs</h3>
+
+<figure class="highlight"><pre><code class="language-cs" data-lang="cs"><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+
+<span class="c1">// a section of the script
+</span><span class="k">public</span> <span class="k">class</span> <span class="nc">MovementController</span> <span class="p">:</span> <span class="n">MonoBehaviour</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">float</span> <span class="n">crouchHeight</span> <span class="p">=</span> <span class="m">1.0f</span><span class="p">;</span>
+
+    <span class="k">private</span> <span class="n">CharacterController</span> <span class="n">characterController</span><span class="p">;</span>
+    <span class="k">private</span> <span class="n">CollisionDetector</span> <span class="n">crouchCollisionTop</span><span class="p">;</span>
+    <span class="k">private</span> <span class="n">CollisionDetector</span> <span class="n">crouchCollisionBottom</span><span class="p">;</span>
+    <span class="k">private</span> <span class="kt">bool</span> <span class="n">crouching</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+    <span class="k">private</span> <span class="kt">float</span> <span class="n">heightDifference</span><span class="p">;</span>
+    <span class="k">private</span> <span class="kt">bool</span> <span class="n">crouchedWhileAirborne</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+    <span class="k">private</span> <span class="kt">bool</span> <span class="n">couldNotStandUp</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+    <span class="k">private</span> <span class="kt">float</span> <span class="n">crouchCameraChange</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">Start</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">characterController</span> <span class="p">=</span> <span class="n">GetComponent</span><span class="p">&lt;</span><span class="n">CharacterController</span><span class="p">&gt;();</span>
+        <span class="n">crouchCollisionTop</span> <span class="p">=</span> <span class="n">GameObject</span><span class="p">.</span><span class="nf">Find</span><span class="p">(</span><span class="s">"collision_detector_top"</span><span class="p">)</span>
+                             <span class="p">.</span><span class="n">GetComponent</span><span class="p">&lt;</span><span class="n">CollisionDetector</span><span class="p">&gt;();</span>
+        <span class="n">crouchCollisionBottom</span> <span class="p">=</span> <span class="n">GameObject</span><span class="p">.</span><span class="nf">Find</span><span class="p">(</span><span class="s">"collision_detector_bottom"</span><span class="p">)</span>
+                             <span class="p">.</span><span class="n">GetComponent</span><span class="p">&lt;</span><span class="n">CollisionDetector</span><span class="p">&gt;();</span>
+        <span class="n">heightDifference</span> <span class="p">=</span> <span class="p">(</span><span class="n">characterController</span><span class="p">.</span><span class="n">height</span> <span class="p">-</span> <span class="n">crouchHeight</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">Crouch</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">crouching</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+
+        <span class="c1">// shrink the player capsule when crouching
+</span>        <span class="n">characterController</span><span class="p">.</span><span class="n">height</span> <span class="p">=</span> <span class="n">crouchHeight</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">characterController</span><span class="p">.</span><span class="n">isGrounded</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// because the player capsule is shrunk, move its center down by half the height
+</span>            <span class="c1">// difference so that it's touching the floor
+</span>            <span class="n">characterController</span><span class="p">.</span><span class="n">center</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">Vector3</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="p">-</span><span class="n">heightDifference</span> <span class="p">/</span> <span class="m">2</span><span class="p">,</span> <span class="m">0</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="c1">// crouch in air by pulling legs up: move capsule's center up by half of
+</span>            <span class="c1">// the height difference
+</span>            <span class="n">crouchedWhileAirborne</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+            <span class="n">characterController</span><span class="p">.</span><span class="n">center</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">Vector3</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="n">heightDifference</span> <span class="p">/</span> <span class="m">2</span><span class="p">,</span> <span class="m">0</span><span class="p">);</span>
+
+            <span class="c1">// since the capsule is now positioned higher, move the top collision
+</span>            <span class="c1">// trigger up as well
+</span>            <span class="n">crouchCollisionTop</span><span class="p">.</span><span class="n">gameObject</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">localPosition</span> <span class="p">+=</span> <span class="k">new</span> <span class="nf">Vector3</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="n">heightDifference</span><span class="p">,</span> <span class="m">0</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">StandUp</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">// remember that it wasn't possible to stand up so that it can be done later
+</span>        <span class="n">couldNotStandUp</span> <span class="p">=</span> <span class="n">crouchCollisionTop</span><span class="p">.</span><span class="n">IsColliding</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">couldNotStandUp</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+        <span class="c1">// because the crouch midair was different than on the ground, the stand up needs
+</span>        <span class="c1">// to be adjusted accordingly
+</span>        <span class="k">if</span> <span class="p">(</span><span class="n">crouchedWhileAirborne</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// move the top collision trigger back
+</span>            <span class="n">crouchCollisionTop</span><span class="p">.</span><span class="n">gameObject</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">localPosition</span> <span class="p">+=</span> <span class="k">new</span> <span class="nf">Vector3</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="p">-</span><span class="n">heightDifference</span><span class="p">,</span> <span class="m">0</span><span class="p">);</span>
+
+            <span class="k">if</span> <span class="p">(!</span><span class="n">characterController</span><span class="p">.</span><span class="n">isGrounded</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="c1">// the player crouched in air, then stand uped before fully landing
+</span>                <span class="k">if</span> <span class="p">(</span><span class="n">crouchCollisionBottom</span><span class="p">.</span><span class="n">IsColliding</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="c1">// calculate remaining distance to the floor
+</span>                    <span class="kt">float</span> <span class="n">distanceToFloor</span> <span class="p">=</span> <span class="p">-(</span><span class="n">crouchCollisionBottom</span><span class="p">.</span><span class="n">CollidingObject</span><span class="p">.</span><span class="nf">ClosestPointOnBounds</span><span class="p">(</span><span class="n">transform</span><span class="p">.</span><span class="n">position</span><span class="p">)</span> <span class="p">-</span> <span class="n">transform</span><span class="p">.</span><span class="n">position</span><span class="p">).</span><span class="n">y</span><span class="p">;</span>
+                    <span class="kt">float</span> <span class="n">change</span> <span class="p">=</span> <span class="n">heightDifference</span> <span class="p">+</span> <span class="n">controllerSkinWidth</span> <span class="p">-</span> <span class="n">distanceToFloor</span><span class="p">;</span>
+
+                    <span class="c1">// move the whole player controller up
+</span>                    <span class="n">transform</span><span class="p">.</span><span class="nf">Translate</span><span class="p">(</span><span class="n">Vector3</span><span class="p">.</span><span class="n">up</span> <span class="p">*</span> <span class="n">change</span><span class="p">);</span>
+
+                    <span class="c1">// move the camera back to the position before the stand up
+</span>                    <span class="c1">// so it can animate smoothly
+</span>                    <span class="n">crouchCameraChange</span> <span class="p">=</span> <span class="p">-</span><span class="n">change</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span>
+                <span class="c1">// move player controller up to standing position then extend
+</span>                <span class="c1">// legs back to the ground
+</span>
+                <span class="c1">// since the capsule was moved up when crouching midair and will be reset
+</span>                <span class="c1">// when ncrouching, move the whole player controller up to compensate
+</span>                <span class="n">transform</span><span class="p">.</span><span class="nf">Translate</span><span class="p">(</span><span class="n">Vector3</span><span class="p">.</span><span class="n">up</span> <span class="p">*</span> <span class="n">heightDifference</span><span class="p">);</span>
+
+                <span class="c1">// move the camera back to the position before the stand up so it can
+</span>                <span class="c1">// animate smoothly
+</span>                <span class="n">crouchCameraChange</span> <span class="p">=</span> <span class="p">-</span><span class="n">heightDifference</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">crouchedWhileAirborne</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// reset the capsule's center and height
+</span>        <span class="n">crouching</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+        <span class="n">characterController</span><span class="p">.</span><span class="n">center</span> <span class="p">=</span> <span class="n">Vector3</span><span class="p">.</span><span class="n">zero</span><span class="p">;</span>
+        <span class="n">characterController</span><span class="p">.</span><span class="n">height</span> <span class="p">=</span> <span class="n">controllerHeight</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+
+    </div>
+</div>
+
+    </div>
+
+    <footer>
+	<div class="container">
+		<ul>
+			<li>Copyright &copy;2016</li>
+			<li>Gregor Panič</li>
+			<li>-</li>
+			<li><a href="mailto:gregor.panic@gmail.com">Email</a></li>
+			<li><a href="http://github.com/gpanic">Github</a></li>
+			<li><a href="http://www.linkedin.com/in/gregorpanic">Linkedin</a></li>
+		</ul>
+	</div>
+</footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+
+  </body>
+
+</html>

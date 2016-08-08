@@ -5822,6 +5822,9 @@ h1 {
 h2 {
   font-size: 30px; }
 
+h3 {
+  font-size: 20px; }
+
 ::selection {
   background: #46abf2; }
 
@@ -5912,7 +5915,7 @@ hr {
   border-color: rgba(69, 156, 247, 0.6);
   color: #46abf2;
   box-shadow: none; }
-  .btn-blue:hover, .btn-blue:active:hover, .btn-blue:visited:hover, .btn-blue:link:hover {
+  .btn-blue:hover, .btn-blue.active, .btn-blue:active:hover, .btn-blue:active.active, .btn-blue:visited:hover, .btn-blue:visited.active, .btn-blue:link:hover, .btn-blue:link.active {
     background-color: #46abf2;
     border-color: #46abf2;
     color: #ededed; }
@@ -6025,3 +6028,8 @@ footer {
     bottom: -60px; }
 .project-page .text {
   padding-bottom: 50px; }
+
+pre {
+  border: none;
+  border-radius: 0;
+  padding: 20px; }

@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Gregor Panič - Gameplay Programmer</title>
+  <meta name="description" content="">
+
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/monokai.css">
+  <link rel="canonical" href="http://gpanic.github.io/code_samples/3dapi_framework.html">
+  <link rel="alternate" type="application/rss+xml" title="Gregor Panič - Gameplay Programmer" href="http://gpanic.github.io/feed.xml">
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,700,600italic,600,800,800italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+</head>
+
+
+  <body>
+
+    <header class="home-header">
+    <div class="container">
+        <div class="outer">
+            <div class="inner">
+                <div class="name">Gregor Panič</div>
+                <div class="title">Gameplay Programmer</div>
+                <div class="nav">
+                    <a class="btn btn-blue " href="/" role="button">Work</a>
+                    <a class="btn btn-blue " href="/projects.html" role="button">Projects</a>
+                    <a class="btn btn-blue " href="/about.html" role="button">About</a>
+                    <a class="btn btn-blue " href="/resume.html" role="button">Résumé</a>
+                    <a class="btn btn-blue " href="/code_samples.html" role="button">Code Samples</a>
+                    <!--<a class="btn btn-blue" href="mailto:gregor.panic@gmail.com" role="button">Contact</a>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!--
+<header class="home-header-2">
+    <div class="container">
+        <div class="title">
+            <div class="name">Gregor Panič</div>
+            <div class="job">Gameplay Programmer</div>
+        </div>
+        <div class="nav">
+            <a href="/" role="button">Work</a>
+            <a href="/about.html" role="button">About</a>
+            <a href="/resume.html" role="button">Resume</a>
+            <a href="mailto:gregor.panic@gmail.com" role="button">Contact</a>
+        </div>
+    </div>
+</header>
+-->
+    
+    <div class="content">
+        <div class="content-inner">
+    <div class="container">
+        <h1>3dApi framework</h1>
+
+        <h3>Project:</h3>
+        <p>
+        	<a href="/projects/3dapi.html">3dApi</a>
+        </p>
+
+        <h3>Programming language:</h3>
+        <p>
+        	C++
+        </p>
+
+        <h3>Github:</h3>
+        <p>
+        <a href="https://github.com/gpanic/3dApi">https://github.com/gpanic/3dApi</a>
+        </p>
+
+        <h3>Description</h3>
+        <p>
+          3dApi uses this framework to make the creation of Direct3D and OpenGL apps easier. The class App3D uses the Win32 API to create a window, manage input, run the main game loop and optionally record the execution time of the most important functions. DXApp and GLApp handle the API specific initialization that is needed to start drawing on the window. Each application in 3dApi derives from either DXApp or GLApp and overrides the InitScene, Update and Render functions to draw different content onto the window.
+      	</p>
+
+      	<h3>App3D.h</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#pragma once
+#include &lt;windows.h&gt;
+#include &lt;string&gt;
+#include &lt;sstream&gt;
+#include &lt;fstream&gt;
+#include &lt;vector&gt;
+#include &lt;iomanip&gt;
+#include "Util.h"
+#include "Vertex.h"
+#include "Vector.h"
+#include "Material.h"
+#include "Input.h"
+</span>
+<span class="k">class</span> <span class="nc">App3D</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">App3D</span><span class="p">(</span><span class="n">HINSTANCE</span> <span class="n">hInstance</span><span class="p">);</span>
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">App3D</span><span class="p">();</span>
+
+    <span class="kt">bool</span> <span class="n">benchmarking</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">processInput</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">update</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">saveDeviceInfo</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">benchmarkFrameCount</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">assetPath</span> <span class="o">=</span> <span class="s">"Assets/"</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">shaderPath</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">binaryPath</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">modelPath</span><span class="p">;</span>
+    <span class="n">Color</span> <span class="n">bgColor</span><span class="p">;</span>
+    <span class="n">Input</span> <span class="n">input</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">Run</span><span class="p">();</span>
+    <span class="k">virtual</span> <span class="n">LRESULT</span> <span class="n">WndProc</span><span class="p">(</span><span class="n">HWND</span> <span class="n">hWnd</span><span class="p">,</span> <span class="n">UINT</span> <span class="n">msg</span><span class="p">,</span> <span class="n">WPARAM</span> <span class="n">wParam</span><span class="p">,</span> <span class="n">LPARAM</span> <span class="n">lParam</span><span class="p">);</span>
+
+<span class="k">protected</span><span class="o">:</span>
+    <span class="kt">double</span>          <span class="n">mDeltaTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">float</span>           <span class="n">mFPS</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span>     <span class="n">mBenchmarkResultName</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span>     <span class="n">mDeviceInfoFileName</span><span class="p">;</span>
+    <span class="n">HWND</span>            <span class="n">mWindow</span><span class="p">;</span>
+    <span class="n">HINSTANCE</span>       <span class="n">mInstance</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span>    <span class="n">mHeight</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span>    <span class="n">mWidth</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span>     <span class="n">mAppTitle</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span>     <span class="n">mWindowClass</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span>   <span class="n">mWindowStyle</span><span class="p">;</span>
+
+    <span class="k">virtual</span> <span class="kt">bool</span> <span class="n">InitAPI</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">bool</span> <span class="n">InitScene</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Update</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Render</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">UpdateWindowTitle</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">SwapBuffer</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">SaveSnapshot</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">file</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">SaveDeviceInfo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">file</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">__int64</span>         <span class="n">mPreviousCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">__int64</span>         <span class="n">mCurrentCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">__int64</span>         <span class="n">mFrequency</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">float</span>           <span class="n">mElapsedTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span>    <span class="n">mDeltaFrameCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span>  <span class="n">mFrameTimes</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span>    <span class="n">mFrameCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">bool</span>            <span class="n">mInLoop</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+    <span class="kt">float</span> <span class="n">mUpdateTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">mRenderTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">mSwapBufferTime</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span>  <span class="n">mUpdateTimes</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span>  <span class="n">mRenderTimes</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span>  <span class="n">mSwapBufferTimes</span><span class="p">;</span>
+
+    <span class="kt">bool</span> <span class="n">firstSnapshot</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+
+    <span class="kt">bool</span> <span class="n">InitWindow</span><span class="p">();</span>
+    <span class="kt">int</span> <span class="n">MsgLoop</span><span class="p">();</span>
+    <span class="kt">void</span> <span class="n">StartTime</span><span class="p">();</span>
+    <span class="kt">void</span> <span class="n">UpdateDeltaTime</span><span class="p">();</span>
+    <span class="kt">void</span> <span class="n">UpdateTime</span><span class="p">();</span>
+    <span class="kt">bool</span> <span class="n">Benchmark</span><span class="p">();</span>
+<span class="p">};</span></code></pre></figure>
+
+
+      	<h3>App3D.cpp</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include "App3D.h"
+</span>
+<span class="k">namespace</span>
+<span class="p">{</span>
+    <span class="n">App3D</span><span class="o">*</span> <span class="n">gApp</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">LRESULT</span> <span class="n">CALLBACK</span> <span class="n">MainWndProc</span><span class="p">(</span><span class="n">HWND</span> <span class="n">hWnd</span><span class="p">,</span> <span class="n">UINT</span> <span class="n">msg</span><span class="p">,</span> <span class="n">WPARAM</span> <span class="n">wParam</span><span class="p">,</span> <span class="n">LPARAM</span> <span class="n">lParam</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">gApp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gApp</span><span class="o">-&gt;</span><span class="n">WndProc</span><span class="p">(</span><span class="n">hWnd</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">wParam</span><span class="p">,</span> <span class="n">lParam</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="k">return</span> <span class="n">DefWindowProc</span><span class="p">(</span><span class="n">hWnd</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">wParam</span><span class="p">,</span> <span class="n">lParam</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">App3D</span><span class="o">::</span><span class="n">App3D</span><span class="p">(</span><span class="n">HINSTANCE</span> <span class="n">hInstance</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">gApp</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+
+    <span class="n">mInstance</span> <span class="o">=</span> <span class="n">hInstance</span><span class="p">;</span>
+    <span class="n">mWindow</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">mWidth</span> <span class="o">=</span> <span class="mi">800</span><span class="p">;</span>
+    <span class="n">mHeight</span> <span class="o">=</span> <span class="mi">800</span><span class="p">;</span>
+    <span class="n">mAppTitle</span> <span class="o">=</span> <span class="s">"3D App"</span><span class="p">;</span>
+    <span class="n">mWindowClass</span> <span class="o">=</span> <span class="s">"3DAPPWNDCLASS"</span><span class="p">;</span>
+    <span class="n">mWindowStyle</span> <span class="o">=</span> <span class="n">WS_OVERLAPPEDWINDOW</span><span class="p">;</span>
+    <span class="n">mBenchmarkResultName</span> <span class="o">=</span> <span class="n">mAppTitle</span> <span class="o">+</span> <span class="s">" Result.txt"</span><span class="p">;</span>
+
+    <span class="n">binaryPath</span> <span class="o">=</span> <span class="n">assetPath</span> <span class="o">+</span> <span class="s">"Binary/"</span><span class="p">;</span>
+    <span class="n">modelPath</span> <span class="o">=</span> <span class="n">assetPath</span> <span class="o">+</span> <span class="s">"Models/"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">App3D</span><span class="o">::~</span><span class="n">App3D</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">UnregisterClass</span><span class="p">(</span><span class="n">mWindowClass</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">mInstance</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// run the app
+</span><span class="kt">int</span> <span class="n">App3D</span><span class="o">::</span><span class="n">Run</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">InitWindow</span><span class="p">())</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">InitAPI</span><span class="p">())</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">InitScene</span><span class="p">())</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">MsgLoop</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// handle input
+</span><span class="n">LRESULT</span> <span class="n">App3D</span><span class="o">::</span><span class="n">WndProc</span><span class="p">(</span><span class="n">HWND</span> <span class="n">hWnd</span><span class="p">,</span> <span class="n">UINT</span> <span class="n">msg</span><span class="p">,</span> <span class="n">WPARAM</span> <span class="n">wParam</span><span class="p">,</span> <span class="n">LPARAM</span> <span class="n">lParam</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="k">case</span> <span class="n">WM_KEYDOWN</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">wParam</span> <span class="o">==</span> <span class="n">VK_ESCAPE</span><span class="p">)</span>
+            <span class="n">DestroyWindow</span><span class="p">(</span><span class="n">hWnd</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">wParam</span> <span class="o">==</span> <span class="n">VK_LEFT</span><span class="p">)</span>
+            <span class="n">input</span><span class="p">.</span><span class="n">left</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">wParam</span> <span class="o">==</span> <span class="n">VK_RIGHT</span><span class="p">)</span> 
+            <span class="n">input</span><span class="p">.</span><span class="n">right</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">wParam</span> <span class="o">==</span> <span class="n">VK_UP</span><span class="p">)</span>
+            <span class="n">input</span><span class="p">.</span><span class="n">up</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">wParam</span> <span class="o">==</span> <span class="n">VK_DOWN</span><span class="p">)</span>
+            <span class="n">input</span><span class="p">.</span><span class="n">down</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">wParam</span> <span class="o">==</span> <span class="mh">0x53</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">SaveSnapshot</span><span class="p">(</span><span class="s">"snapshot.bmp"</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">WM_DESTROY</span><span class="p">:</span>
+        <span class="n">PostQuitMessage</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">default</span><span class="o">:</span>
+        <span class="k">return</span> <span class="n">DefWindowProc</span><span class="p">(</span><span class="n">hWnd</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">wParam</span><span class="p">,</span> <span class="n">lParam</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// create win32 window
+</span><span class="kt">bool</span> <span class="n">App3D</span><span class="o">::</span><span class="n">InitWindow</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">WNDCLASSEX</span> <span class="n">wcex</span><span class="p">;</span>
+    <span class="n">ZeroMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wcex</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">WNDCLASSEX</span><span class="p">));</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">cbSize</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">WNDCLASSEX</span><span class="p">);</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">style</span> <span class="o">=</span> <span class="n">CS_HREDRAW</span> <span class="o">|</span> <span class="n">CS_VREDRAW</span><span class="p">;</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">lpfnWndProc</span> <span class="o">=</span> <span class="n">MainWndProc</span><span class="p">;</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">cbClsExtra</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">cbWndExtra</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">hInstance</span> <span class="o">=</span> <span class="n">mInstance</span><span class="p">;</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">hIcon</span> <span class="o">=</span> <span class="n">LoadIcon</span><span class="p">(</span><span class="n">mInstance</span><span class="p">,</span> <span class="n">MAKEINTRESOURCE</span><span class="p">(</span><span class="n">IDI_APPLICATION</span><span class="p">));</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">hCursor</span> <span class="o">=</span> <span class="n">LoadCursor</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">IDC_ARROW</span><span class="p">);</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">hbrBackground</span> <span class="o">=</span> <span class="p">(</span><span class="n">HBRUSH</span><span class="p">)(</span><span class="n">COLOR_WINDOW</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">lpszMenuName</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">lpszClassName</span> <span class="o">=</span> <span class="n">mWindowClass</span><span class="p">.</span><span class="n">c_str</span><span class="p">();</span>
+    <span class="n">wcex</span><span class="p">.</span><span class="n">hIconSm</span> <span class="o">=</span> <span class="n">LoadIcon</span><span class="p">(</span><span class="n">mInstance</span><span class="p">,</span> <span class="n">MAKEINTRESOURCE</span><span class="p">(</span><span class="n">IDI_APPLICATION</span><span class="p">));</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">RegisterClassEx</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wcex</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">MessageBox</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">"Error registering class"</span><span class="p">,</span> <span class="s">"Error"</span><span class="p">,</span> <span class="n">MB_OK</span> <span class="o">|</span> <span class="n">MB_ICONERROR</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">RECT</span> <span class="n">r</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mWidth</span><span class="p">,</span> <span class="n">mHeight</span> <span class="p">};</span>
+    <span class="n">AdjustWindowRect</span><span class="p">(</span><span class="o">&amp;</span><span class="n">r</span><span class="p">,</span> <span class="n">mWindowStyle</span><span class="p">,</span> <span class="n">FALSE</span><span class="p">);</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">width</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">right</span> <span class="o">-</span> <span class="n">r</span><span class="p">.</span><span class="n">left</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">bottom</span> <span class="o">-</span> <span class="n">r</span><span class="p">.</span><span class="n">top</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">GetSystemMetrics</span><span class="p">(</span><span class="n">SM_CXSCREEN</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">GetSystemMetrics</span><span class="p">(</span><span class="n">SM_CYSCREEN</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+
+    <span class="n">mWindow</span> <span class="o">=</span> <span class="n">CreateWindow</span><span class="p">(</span>
+        <span class="n">mWindowClass</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span>
+        <span class="n">mAppTitle</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span>
+        <span class="n">WS_OVERLAPPEDWINDOW</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span>
+        <span class="nb">NULL</span><span class="p">,</span>
+        <span class="nb">NULL</span><span class="p">,</span>
+        <span class="n">mInstance</span><span class="p">,</span>
+        <span class="nb">NULL</span>
+        <span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">mWindow</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">MessageBox</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">"Error creating window"</span><span class="p">,</span> <span class="s">"Error"</span><span class="p">,</span> <span class="n">MB_OK</span> <span class="o">|</span> <span class="n">MB_ICONERROR</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">ShowWindow</span><span class="p">(</span><span class="n">mWindow</span><span class="p">,</span> <span class="n">SW_SHOW</span><span class="p">);</span>
+    <span class="n">UpdateWindow</span><span class="p">(</span><span class="n">mWindow</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// main game loop
+</span><span class="kt">int</span> <span class="n">App3D</span><span class="o">::</span><span class="n">MsgLoop</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">StartTime</span><span class="p">();</span>
+
+    <span class="n">__int64</span> <span class="n">first</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">__int64</span> <span class="n">second</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">__int64</span> <span class="n">freq</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">QueryPerformanceFrequency</span><span class="p">((</span><span class="n">LARGE_INTEGER</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">freq</span><span class="p">);</span>
+
+    <span class="n">MSG</span> <span class="n">msg</span><span class="p">;</span>
+    <span class="n">ZeroMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">msg</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">MSG</span><span class="p">));</span>
+
+    <span class="n">mInLoop</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">WM_QUIT</span> <span class="o">!=</span> <span class="n">msg</span><span class="p">.</span><span class="n">message</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">PeekMessage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">msg</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">PM_REMOVE</span><span class="p">))</span>
+        <span class="p">{</span>
+            <span class="n">TranslateMessage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">msg</span><span class="p">);</span>
+            <span class="n">DispatchMessage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">msg</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="n">UpdateDeltaTime</span><span class="p">();</span>
+
+            <span class="n">QueryPerformanceCounter</span><span class="p">((</span><span class="n">LARGE_INTEGER</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">first</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">update</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">Update</span><span class="p">();</span>
+            <span class="p">}</span>
+            <span class="n">QueryPerformanceCounter</span><span class="p">((</span><span class="n">LARGE_INTEGER</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">second</span><span class="p">);</span>
+            <span class="n">mUpdateTime</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)(</span><span class="n">second</span> <span class="o">-</span> <span class="n">first</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">freq</span><span class="p">;</span>
+
+            <span class="n">QueryPerformanceCounter</span><span class="p">((</span><span class="n">LARGE_INTEGER</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">first</span><span class="p">);</span>
+            <span class="n">Render</span><span class="p">();</span>
+            <span class="n">QueryPerformanceCounter</span><span class="p">((</span><span class="n">LARGE_INTEGER</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">second</span><span class="p">);</span>
+            <span class="n">mRenderTime</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)(</span><span class="n">second</span> <span class="o">-</span> <span class="n">first</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">freq</span><span class="p">;</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">benchmarking</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">UpdateWindowTitle</span><span class="p">();</span>
+            <span class="p">}</span>
+
+            <span class="n">QueryPerformanceCounter</span><span class="p">((</span><span class="n">LARGE_INTEGER</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">first</span><span class="p">);</span>
+            <span class="n">SwapBuffer</span><span class="p">();</span>
+            <span class="n">QueryPerformanceCounter</span><span class="p">((</span><span class="n">LARGE_INTEGER</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">second</span><span class="p">);</span>
+            <span class="n">mSwapBufferTime</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)(</span><span class="n">second</span> <span class="o">-</span> <span class="n">first</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">freq</span><span class="p">;</span>
+
+            <span class="n">UpdateTime</span><span class="p">();</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">Benchmark</span><span class="p">())</span>
+                <span class="n">DestroyWindow</span><span class="p">(</span><span class="n">mWindow</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">wParam</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">App3D</span><span class="o">::</span><span class="n">StartTime</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">QueryPerformanceCounter</span><span class="p">((</span><span class="n">LARGE_INTEGER</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">mPreviousCount</span><span class="p">);</span>
+    <span class="n">QueryPerformanceFrequency</span><span class="p">((</span><span class="n">LARGE_INTEGER</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">mFrequency</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">App3D</span><span class="o">::</span><span class="n">UpdateDeltaTime</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">QueryPerformanceCounter</span><span class="p">((</span><span class="n">LARGE_INTEGER</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">mCurrentCount</span><span class="p">);</span>
+    <span class="n">mDeltaTime</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)(</span><span class="n">mCurrentCount</span> <span class="o">-</span> <span class="n">mPreviousCount</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">mFrequency</span><span class="p">;</span>
+
+    <span class="n">mElapsedTime</span> <span class="o">+=</span> <span class="n">mDeltaTime</span><span class="p">;</span>
+    <span class="o">++</span><span class="n">mDeltaFrameCount</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">mElapsedTime</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="n">f</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">mFPS</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">mDeltaFrameCount</span><span class="p">;</span>
+        <span class="n">mElapsedTime</span> <span class="o">-=</span> <span class="mf">1.0</span><span class="n">f</span><span class="p">;</span>
+        <span class="n">mDeltaFrameCount</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">App3D</span><span class="o">::</span><span class="n">UpdateTime</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">mPreviousCount</span> <span class="o">=</span> <span class="n">mCurrentCount</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">App3D</span><span class="o">::</span><span class="n">Benchmark</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">benchmarking</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">firstSnapshot</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">CreateDirectory</span><span class="p">(</span><span class="s">"Results"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+            <span class="n">SaveSnapshot</span><span class="p">(</span><span class="s">"Results/"</span> <span class="o">+</span> <span class="n">mBenchmarkResultName</span> <span class="o">+</span> <span class="s">"_start.bmp"</span><span class="p">);</span>
+            <span class="n">firstSnapshot</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">mFrameCount</span> <span class="o">&lt;=</span> <span class="n">benchmarkFrameCount</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">mFrameTimes</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">benchmarkFrameCount</span><span class="p">)</span>
+                    <span class="n">mFrameTimes</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="n">benchmarkFrameCount</span><span class="p">);</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">mUpdateTimes</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">benchmarkFrameCount</span><span class="p">)</span>
+                    <span class="n">mUpdateTimes</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="n">benchmarkFrameCount</span><span class="p">);</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">mRenderTimes</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">benchmarkFrameCount</span><span class="p">)</span>
+                    <span class="n">mRenderTimes</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="n">benchmarkFrameCount</span><span class="p">);</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">mSwapBufferTimes</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">!=</span> <span class="n">benchmarkFrameCount</span><span class="p">)</span>
+                    <span class="n">mSwapBufferTimes</span><span class="p">.</span><span class="n">resize</span><span class="p">(</span><span class="n">benchmarkFrameCount</span><span class="p">);</span>
+
+                <span class="n">mFrameTimes</span><span class="p">[</span><span class="n">mFrameCount</span><span class="p">]</span> <span class="o">=</span> <span class="n">mDeltaTime</span><span class="p">;</span>
+                <span class="n">mUpdateTimes</span><span class="p">[</span><span class="n">mFrameCount</span><span class="p">]</span> <span class="o">=</span> <span class="n">mUpdateTime</span><span class="p">;</span>
+                <span class="n">mRenderTimes</span><span class="p">[</span><span class="n">mFrameCount</span><span class="p">]</span> <span class="o">=</span> <span class="n">mRenderTime</span><span class="p">;</span>
+                <span class="n">mSwapBufferTimes</span><span class="p">[</span><span class="n">mFrameCount</span><span class="p">]</span> <span class="o">=</span> <span class="n">mSwapBufferTime</span><span class="p">;</span>
+
+                <span class="o">++</span><span class="n">mFrameCount</span><span class="p">;</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">mFrameCount</span> <span class="o">==</span> <span class="n">benchmarkFrameCount</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="n">std</span><span class="o">::</span><span class="n">ofstream</span> <span class="n">file</span><span class="p">;</span>
+                    <span class="n">file</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="s">"Results/"</span> <span class="o">+</span> <span class="n">mBenchmarkResultName</span> <span class="o">+</span> <span class="s">".txt"</span><span class="p">);</span>
+                    <span class="kt">float</span> <span class="n">deltaSum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                    <span class="kt">float</span> <span class="n">updateSum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                    <span class="kt">float</span> <span class="n">renderSum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                    <span class="kt">float</span> <span class="n">swapBufferSum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">benchmarkFrameCount</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+                    <span class="p">{</span>
+                        <span class="kt">float</span> <span class="n">delta</span> <span class="o">=</span> <span class="n">mFrameTimes</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+                        <span class="kt">float</span> <span class="n">update</span> <span class="o">=</span> <span class="n">mUpdateTimes</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+                        <span class="kt">float</span> <span class="n">render</span> <span class="o">=</span> <span class="n">mRenderTimes</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+                        <span class="kt">float</span> <span class="n">swapBuffer</span> <span class="o">=</span> <span class="n">mSwapBufferTimes</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+
+                        <span class="n">deltaSum</span> <span class="o">+=</span> <span class="n">delta</span><span class="p">;</span>
+                        <span class="n">updateSum</span> <span class="o">+=</span> <span class="n">update</span><span class="p">;</span>
+                        <span class="n">renderSum</span> <span class="o">+=</span> <span class="n">render</span><span class="p">;</span>
+                        <span class="n">swapBufferSum</span> <span class="o">+=</span> <span class="n">swapBuffer</span><span class="p">;</span>
+
+                        <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">setfill</span><span class="p">(</span><span class="sc">'0'</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">setw</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="s">" DT "</span>
+                             <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">fixed</span> <span class="o">&lt;&lt;</span> <span class="n">delta</span> <span class="o">&lt;&lt;</span> <span class="s">" U "</span> <span class="o">&lt;&lt;</span> <span class="n">update</span> <span class="o">&lt;&lt;</span> <span class="s">" R "</span> <span class="o">&lt;&lt;</span> <span class="n">render</span>
+                             <span class="o">&lt;&lt;</span> <span class="s">" B "</span> <span class="o">&lt;&lt;</span> <span class="n">swapBuffer</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+                    <span class="p">}</span>
+                    <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">"SUM "</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">fixed</span> <span class="o">&lt;&lt;</span> <span class="s">"DT "</span> <span class="o">&lt;&lt;</span> <span class="n">deltaSum</span> <span class="o">&lt;&lt;</span> <span class="s">" U "</span> <span class="o">&lt;&lt;</span> <span class="n">updateSum</span>
+                         <span class="o">&lt;&lt;</span> <span class="s">" R "</span> <span class="o">&lt;&lt;</span> <span class="n">renderSum</span> <span class="o">&lt;&lt;</span> <span class="s">" B "</span> <span class="o">&lt;&lt;</span> <span class="n">swapBufferSum</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+                    <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">"FPS "</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">benchmarkFrameCount</span> <span class="o">/</span> <span class="n">deltaSum</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+                    <span class="n">file</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span>
+                <span class="n">SaveSnapshot</span><span class="p">(</span><span class="s">"Results/"</span> <span class="o">+</span> <span class="n">mBenchmarkResultName</span> <span class="o">+</span> <span class="s">"_end.bmp"</span><span class="p">);</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">saveDeviceInfo</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="n">SaveDeviceInfo</span><span class="p">(</span><span class="s">"Results/"</span> <span class="o">+</span> <span class="n">mDeviceInfoFileName</span> <span class="o">+</span> <span class="s">".txt"</span><span class="p">);</span>
+                <span class="p">}</span>
+                <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+
+      	<h3>DXApp.h</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#pragma once
+#include "App3D.h"
+#include "DXUtil.h"
+#include &lt;d3d11_2.h&gt;
+#include &lt;d3dcompiler.h&gt;
+</span>
+<span class="k">class</span> <span class="nc">DXApp</span> <span class="o">:</span> <span class="k">public</span> <span class="n">App3D</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">DXApp</span><span class="p">(</span><span class="n">HINSTANCE</span> <span class="n">hInstance</span><span class="p">);</span>
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">DXApp</span><span class="p">();</span>
+
+    <span class="kt">bool</span> <span class="n">debug</span><span class="p">;</span>
+
+<span class="k">protected</span><span class="o">:</span>
+    
+    <span class="n">ID3D11Device1</span><span class="o">*</span>              <span class="n">mDevice</span><span class="p">;</span>
+    <span class="n">ID3D11DeviceContext1</span><span class="o">*</span>       <span class="n">mDeviceContext</span><span class="p">;</span>
+    <span class="n">IDXGISwapChain1</span><span class="o">*</span>            <span class="n">mSwapChain</span><span class="p">;</span>
+    <span class="n">ID3D11DepthStencilView</span><span class="o">*</span>     <span class="n">mDepthStencilView</span><span class="p">;</span>
+    <span class="n">ID3D11RenderTargetView</span><span class="o">*</span>     <span class="n">mRenderTargetView</span><span class="p">;</span>
+    <span class="n">D3D_DRIVER_TYPE</span>             <span class="n">mDriverType</span><span class="p">;</span>
+    <span class="n">D3D_FEATURE_LEVEL</span>           <span class="n">mFeatureLevel</span><span class="p">;</span>
+    <span class="n">D3D11_VIEWPORT</span>              <span class="n">mViewport</span><span class="p">;</span>
+
+    <span class="k">virtual</span> <span class="kt">bool</span> <span class="n">InitScene</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Update</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Render</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="kt">bool</span> <span class="n">InitAPI</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">UpdateWindowTitle</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">SwapBuffer</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">SaveSnapshot</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">file</span><span class="p">)</span> <span class="n">override</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">SaveDeviceInfo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">file</span><span class="p">)</span> <span class="n">override</span><span class="p">;</span>
+<span class="p">};</span></code></pre></figure>
+
+
+      	<h3>DXApp.cpp</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include "DXApp.h"
+</span>
+<span class="n">DXApp</span><span class="o">::</span><span class="n">DXApp</span><span class="p">(</span><span class="n">HINSTANCE</span> <span class="n">hInstance</span><span class="p">)</span> <span class="o">:</span> <span class="n">App3D</span><span class="p">(</span><span class="n">hInstance</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">mAppTitle</span> <span class="o">=</span> <span class="s">"DirectX App"</span><span class="p">;</span>
+    <span class="n">mWindowClass</span> <span class="o">=</span> <span class="s">"DXAPPWNDCLASS"</span><span class="p">;</span>
+    <span class="n">shaderPath</span> <span class="o">=</span> <span class="n">assetPath</span> <span class="o">+</span> <span class="s">"HLSL/"</span><span class="p">;</span>
+    <span class="n">mDeviceInfoFileName</span> <span class="o">=</span> <span class="s">"dx_device_info"</span><span class="p">;</span>
+
+    <span class="n">mDevice</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">mDeviceContext</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">mSwapChain</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">mRenderTargetView</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="n">debug</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">DXApp</span><span class="o">::~</span><span class="n">DXApp</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">mDeviceContext</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">mSwapChain</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">mDevice</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">mDepthStencilView</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">mRenderTargetView</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">DXApp</span><span class="o">::</span><span class="n">InitAPI</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">UINT</span> <span class="n">createFlags</span> <span class="o">=</span> <span class="p">(</span><span class="n">debug</span><span class="p">)</span> <span class="o">?</span> <span class="n">D3D11_CREATE_DEVICE_DEBUG</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">D3D_DRIVER_TYPE</span> <span class="n">driverTypes</span><span class="p">[]</span> <span class="o">=</span>
+    <span class="p">{</span>
+        <span class="n">D3D_DRIVER_TYPE_HARDWARE</span><span class="p">,</span>
+        <span class="n">D3D_DRIVER_TYPE_WARP</span><span class="p">,</span>
+        <span class="n">D3D_DRIVER_TYPE_REFERENCE</span><span class="p">,</span>
+    <span class="p">};</span>
+    <span class="n">UINT</span> <span class="n">numDriverTypes</span> <span class="o">=</span> <span class="n">ARRAYSIZE</span><span class="p">(</span><span class="n">driverTypes</span><span class="p">);</span>
+
+    <span class="n">D3D_FEATURE_LEVEL</span> <span class="n">featureLevels</span><span class="p">[]</span> <span class="o">=</span>
+    <span class="p">{</span>
+        <span class="n">D3D_FEATURE_LEVEL_11_1</span><span class="p">,</span>
+        <span class="n">D3D_FEATURE_LEVEL_11_0</span><span class="p">,</span>
+        <span class="n">D3D_FEATURE_LEVEL_10_1</span><span class="p">,</span>
+        <span class="n">D3D_FEATURE_LEVEL_10_0</span><span class="p">,</span>
+        <span class="n">D3D_FEATURE_LEVEL_9_3</span>
+    <span class="p">};</span>
+    <span class="n">UINT</span> <span class="n">numFeatureLevels</span> <span class="o">=</span> <span class="n">ARRAYSIZE</span><span class="p">(</span><span class="n">featureLevels</span><span class="p">);</span>
+
+    <span class="n">ID3D11Device</span><span class="o">*</span> <span class="n">mDeviceOld</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">ID3D11DeviceContext</span><span class="o">*</span> <span class="n">mDeviceContextOld</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="n">HRESULT</span> <span class="n">result</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numDriverTypes</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">D3D11CreateDevice</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">driverTypes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">createFlags</span><span class="p">,</span> <span class="n">featureLevels</span><span class="p">,</span> <span class="n">numFeatureLevels</span><span class="p">,</span>
+            <span class="n">D3D11_SDK_VERSION</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mDeviceOld</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mFeatureLevel</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mDeviceContextOld</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="n">E_INVALIDARG</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">D3D11CreateDevice</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">driverTypes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">createFlags</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">featureLevels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">numFeatureLevels</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">D3D11_SDK_VERSION</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mDeviceOld</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mFeatureLevel</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mDeviceContextOld</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">SUCCEEDED</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+        <span class="p">{</span>
+            <span class="n">mDriverType</span> <span class="o">=</span> <span class="n">driverTypes</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">MessageBox</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">"Error creating D3D11 device"</span><span class="p">,</span> <span class="s">"Error"</span><span class="p">,</span> <span class="n">MB_OK</span> <span class="o">|</span> <span class="n">MB_ICONERROR</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">mDeviceOld</span><span class="o">-&gt;</span><span class="n">QueryInterface</span><span class="p">(</span><span class="kr">__uuidof</span><span class="p">(</span><span class="n">ID3D11Device1</span><span class="p">),</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">**&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mDevice</span><span class="p">));</span>
+    <span class="n">mDeviceContextOld</span><span class="o">-&gt;</span><span class="n">QueryInterface</span><span class="p">(</span><span class="kr">__uuidof</span><span class="p">(</span><span class="n">ID3D11DeviceContext1</span><span class="p">),</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">**&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mDeviceContext</span><span class="p">));</span>
+
+    <span class="n">IDXGIDevice1</span><span class="o">*</span> <span class="n">dxgiDevice</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">mDevice</span><span class="o">-&gt;</span><span class="n">QueryInterface</span><span class="p">(</span><span class="kr">__uuidof</span><span class="p">(</span><span class="n">IDXGIDevice1</span><span class="p">),</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">**&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dxgiDevice</span><span class="p">));</span>
+
+    <span class="n">IDXGIAdapter</span><span class="o">*</span> <span class="n">dxgiAdapter</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">dxgiDevice</span><span class="o">-&gt;</span><span class="n">GetAdapter</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dxgiAdapter</span><span class="p">);</span>
+
+    <span class="n">IDXGIFactory2</span><span class="o">*</span> <span class="n">dxgiFactory</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">dxgiAdapter</span><span class="o">-&gt;</span><span class="n">GetParent</span><span class="p">(</span><span class="kr">__uuidof</span><span class="p">(</span><span class="n">IDXGIFactory2</span><span class="p">),</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">**&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dxgiFactory</span><span class="p">));</span>
+
+    <span class="n">DXGI_SWAP_CHAIN_DESC1</span> <span class="n">sd</span><span class="p">;</span>
+    <span class="n">ZeroMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sd</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">sd</span><span class="p">));</span>
+    <span class="n">sd</span><span class="p">.</span><span class="n">Width</span> <span class="o">=</span> <span class="n">mWidth</span><span class="p">;</span>
+    <span class="n">sd</span><span class="p">.</span><span class="n">Height</span> <span class="o">=</span> <span class="n">mHeight</span><span class="p">;</span>
+    <span class="n">sd</span><span class="p">.</span><span class="n">Format</span> <span class="o">=</span> <span class="n">DXGI_FORMAT_R8G8B8A8_UNORM</span><span class="p">;</span>
+    <span class="n">sd</span><span class="p">.</span><span class="n">SampleDesc</span><span class="p">.</span><span class="n">Count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">sd</span><span class="p">.</span><span class="n">SampleDesc</span><span class="p">.</span><span class="n">Quality</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">sd</span><span class="p">.</span><span class="n">BufferUsage</span> <span class="o">=</span> <span class="n">DXGI_USAGE_RENDER_TARGET_OUTPUT</span><span class="p">;</span>
+    <span class="n">sd</span><span class="p">.</span><span class="n">BufferCount</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="n">dxgiFactory</span><span class="o">-&gt;</span><span class="n">CreateSwapChainForHwnd</span><span class="p">(</span><span class="n">mDevice</span><span class="p">,</span> <span class="n">mWindow</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sd</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mSwapChain</span><span class="p">);</span>
+
+    <span class="n">ID3D11Texture2D</span><span class="o">*</span> <span class="n">backBuffer</span><span class="p">;</span>
+    <span class="n">mSwapChain</span><span class="o">-&gt;</span><span class="n">GetBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kr">__uuidof</span><span class="p">(</span><span class="n">ID3D11Texture2D</span><span class="p">),</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">**&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">backBuffer</span><span class="p">));</span>
+
+    <span class="n">mDevice</span><span class="o">-&gt;</span><span class="n">CreateRenderTargetView</span><span class="p">(</span><span class="n">backBuffer</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mRenderTargetView</span><span class="p">);</span>
+
+    <span class="n">D3D11_TEXTURE2D_DESC</span> <span class="n">depthStencilDesc</span><span class="p">;</span>
+    <span class="n">ZeroMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">depthStencilDesc</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">depthStencilDesc</span><span class="p">));</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">Width</span> <span class="o">=</span> <span class="n">mWidth</span><span class="p">;</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">Height</span> <span class="o">=</span> <span class="n">mHeight</span><span class="p">;</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">MipLevels</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">ArraySize</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">Format</span> <span class="o">=</span> <span class="n">DXGI_FORMAT_D24_UNORM_S8_UINT</span><span class="p">;</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">SampleDesc</span><span class="p">.</span><span class="n">Count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">SampleDesc</span><span class="p">.</span><span class="n">Quality</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">Usage</span> <span class="o">=</span> <span class="n">D3D11_USAGE_DEFAULT</span><span class="p">;</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">BindFlags</span> <span class="o">=</span> <span class="n">D3D11_BIND_DEPTH_STENCIL</span><span class="p">;</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">CPUAccessFlags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">depthStencilDesc</span><span class="p">.</span><span class="n">MiscFlags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">ID3D11Texture2D</span><span class="o">*</span> <span class="n">depthStencilBuffer</span><span class="p">;</span>
+    <span class="n">mDevice</span><span class="o">-&gt;</span><span class="n">CreateTexture2D</span><span class="p">(</span><span class="o">&amp;</span><span class="n">depthStencilDesc</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">depthStencilBuffer</span><span class="p">);</span>
+    <span class="n">mDevice</span><span class="o">-&gt;</span><span class="n">CreateDepthStencilView</span><span class="p">(</span><span class="n">depthStencilBuffer</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mDepthStencilView</span><span class="p">);</span>
+
+    <span class="n">mDeviceContext</span><span class="o">-&gt;</span><span class="n">OMSetRenderTargets</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mRenderTargetView</span><span class="p">,</span> <span class="n">mDepthStencilView</span><span class="p">);</span>
+
+    <span class="n">mViewport</span><span class="p">.</span><span class="n">Width</span> <span class="o">=</span> <span class="p">(</span><span class="n">FLOAT</span><span class="p">)</span><span class="n">mWidth</span><span class="p">;</span>
+    <span class="n">mViewport</span><span class="p">.</span><span class="n">Height</span> <span class="o">=</span> <span class="p">(</span><span class="n">FLOAT</span><span class="p">)</span><span class="n">mHeight</span><span class="p">;</span>
+    <span class="n">mViewport</span><span class="p">.</span><span class="n">MinDepth</span> <span class="o">=</span> <span class="mf">0.0</span><span class="n">f</span><span class="p">;</span>
+    <span class="n">mViewport</span><span class="p">.</span><span class="n">MaxDepth</span> <span class="o">=</span> <span class="mf">1.0</span><span class="n">f</span><span class="p">;</span>
+    <span class="n">mViewport</span><span class="p">.</span><span class="n">TopLeftX</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">mViewport</span><span class="p">.</span><span class="n">TopLeftY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">mDeviceContext</span><span class="o">-&gt;</span><span class="n">RSSetViewports</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mViewport</span><span class="p">);</span>
+
+    <span class="n">mDeviceOld</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">mDeviceContextOld</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">dxgiDevice</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">dxgiAdapter</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">dxgiFactory</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">backBuffer</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">depthStencilBuffer</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">DXApp</span><span class="o">::</span><span class="n">UpdateWindowTitle</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">ss</span><span class="p">;</span>
+    <span class="n">ss</span> <span class="o">&lt;&lt;</span> <span class="n">mAppTitle</span> <span class="o">&lt;&lt;</span> <span class="s">" | FPS "</span> <span class="o">&lt;&lt;</span> <span class="n">mFPS</span><span class="p">;</span>
+    <span class="n">SetWindowText</span><span class="p">(</span><span class="n">mWindow</span><span class="p">,</span> <span class="n">ss</span><span class="p">.</span><span class="n">str</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">DXApp</span><span class="o">::</span><span class="n">SwapBuffer</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">mSwapChain</span><span class="o">-&gt;</span><span class="n">Present</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">DXApp</span><span class="o">::</span><span class="n">SaveSnapshot</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filePath</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">ID3D11Texture2D</span> <span class="o">*</span><span class="n">backBuffer</span><span class="p">;</span>
+    <span class="n">mSwapChain</span><span class="o">-&gt;</span><span class="n">GetBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kr">__uuidof</span><span class="p">(</span><span class="n">ID3D11Texture2D</span><span class="p">),</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span> <span class="o">**&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">backBuffer</span><span class="p">));</span>
+
+    <span class="n">D3D11_TEXTURE2D_DESC</span> <span class="n">desc</span><span class="p">;</span>
+    <span class="n">ZeroMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">desc</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">desc</span><span class="p">));</span>
+    <span class="n">backBuffer</span><span class="o">-&gt;</span><span class="n">GetDesc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">desc</span><span class="p">);</span>
+    <span class="n">desc</span><span class="p">.</span><span class="n">Format</span> <span class="o">=</span> <span class="n">DXGI_FORMAT_R8G8B8A8_UNORM</span><span class="p">;</span>
+    <span class="n">desc</span><span class="p">.</span><span class="n">Usage</span> <span class="o">=</span> <span class="n">D3D11_USAGE_STAGING</span><span class="p">;</span>
+    <span class="n">desc</span><span class="p">.</span><span class="n">BindFlags</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">desc</span><span class="p">.</span><span class="n">CPUAccessFlags</span> <span class="o">=</span> <span class="n">D3D11_CPU_ACCESS_READ</span> <span class="o">|</span> <span class="n">D3D11_CPU_ACCESS_WRITE</span><span class="p">;</span>
+
+    <span class="n">ID3D11Texture2D</span> <span class="o">*</span><span class="n">newTex</span><span class="p">;</span>
+    <span class="n">mDevice</span><span class="o">-&gt;</span><span class="n">CreateTexture2D</span><span class="p">(</span><span class="o">&amp;</span><span class="n">desc</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">newTex</span><span class="p">);</span>
+    <span class="n">mDeviceContext</span><span class="o">-&gt;</span><span class="n">CopyResource</span><span class="p">(</span><span class="n">newTex</span><span class="p">,</span> <span class="n">backBuffer</span><span class="p">);</span>
+
+    <span class="n">D3D11_MAPPED_SUBRESOURCE</span> <span class="n">res</span><span class="p">;</span>
+    <span class="n">ZeroMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">res</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">res</span><span class="p">));</span>
+    <span class="n">mDeviceContext</span><span class="o">-&gt;</span><span class="n">Map</span><span class="p">(</span><span class="n">newTex</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">D3D11_MAP_READ</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">res</span><span class="p">);</span>
+
+    <span class="n">byte</span> <span class="o">*</span><span class="n">bmpTempBuffer</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">byte</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">res</span><span class="p">.</span><span class="n">pData</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">bmpTempBuffer</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+    <span class="n">byte</span> <span class="o">*</span><span class="n">bmpBuffer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">byte</span><span class="p">[</span><span class="n">mWidth</span> <span class="o">*</span> <span class="n">mHeight</span> <span class="o">*</span> <span class="mi">3</span><span class="p">];</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">mHeight</span><span class="p">;</span> <span class="o">++</span><span class="n">y</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">mWidth</span><span class="p">;</span> <span class="o">++</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">mWidth</span><span class="p">))</span> <span class="o">*</span> <span class="mi">3</span><span class="p">;</span>
+            <span class="kt">int</span> <span class="n">iInv</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="p">((</span><span class="n">mWidth</span> <span class="o">-</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">mWidth</span><span class="p">))</span> <span class="o">*</span> <span class="mi">3</span><span class="p">;</span>
+            <span class="kt">int</span> <span class="n">c</span> <span class="o">=</span> <span class="n">iInv</span> <span class="o">/</span> <span class="mi">3</span><span class="p">;</span>
+            <span class="n">bmpBuffer</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">bmpTempBuffer</span><span class="p">[</span><span class="n">iInv</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span><span class="p">];</span>
+            <span class="n">bmpBuffer</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">bmpTempBuffer</span><span class="p">[</span><span class="n">iInv</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">c</span><span class="p">];</span>
+            <span class="n">bmpBuffer</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">bmpTempBuffer</span><span class="p">[</span><span class="n">iInv</span> <span class="o">+</span> <span class="mi">0</span> <span class="o">+</span> <span class="n">c</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">mDeviceContext</span><span class="o">-&gt;</span><span class="n">Unmap</span><span class="p">(</span><span class="n">newTex</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">bmpTempBuffer</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">backBuffer</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+    <span class="n">newTex</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">();</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">ofstream</span> <span class="n">file</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">out</span> <span class="o">|</span> <span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">binary</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">file</span><span class="p">.</span><span class="n">is_open</span><span class="p">())</span> <span class="k">return</span><span class="p">;</span>
+
+    <span class="n">BITMAPFILEHEADER</span> <span class="n">bitmapFileHeader</span><span class="p">;</span>
+    <span class="n">bitmapFileHeader</span><span class="p">.</span><span class="n">bfType</span> <span class="o">=</span> <span class="mh">0x4D42</span><span class="p">;</span> <span class="c1">//"BM"
+</span>    <span class="n">bitmapFileHeader</span><span class="p">.</span><span class="n">bfSize</span> <span class="o">=</span> <span class="n">mWidth</span> <span class="o">*</span> <span class="n">mHeight</span> <span class="o">*</span> <span class="mi">3</span><span class="p">;</span>
+    <span class="n">bitmapFileHeader</span><span class="p">.</span><span class="n">bfReserved1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">bitmapFileHeader</span><span class="p">.</span><span class="n">bfReserved2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">bitmapFileHeader</span><span class="p">.</span><span class="n">bfOffBits</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">BITMAPFILEHEADER</span><span class="p">)</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">BITMAPINFOHEADER</span><span class="p">);</span>
+
+    <span class="n">BITMAPINFOHEADER</span> <span class="n">bitmapInfoHeader</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biSize</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">BITMAPINFOHEADER</span><span class="p">);</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biWidth</span> <span class="o">=</span> <span class="n">mWidth</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biHeight</span> <span class="o">=</span> <span class="n">mHeight</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biPlanes</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biBitCount</span> <span class="o">=</span> <span class="mi">24</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biCompression</span> <span class="o">=</span> <span class="n">BI_RGB</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biSizeImage</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biXPelsPerMeter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// ?
+</span>    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biYPelsPerMeter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// ?
+</span>    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biClrUsed</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biClrImportant</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span> <span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bitmapFileHeader</span><span class="p">),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">bitmapFileHeader</span><span class="p">));</span>
+    <span class="n">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span> <span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bitmapInfoHeader</span><span class="p">),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">bitmapInfoHeader</span><span class="p">));</span>
+    <span class="n">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">bmpBuffer</span><span class="p">),</span> <span class="n">mWidth</span> <span class="o">*</span> <span class="n">mHeight</span> <span class="o">*</span> <span class="mi">3</span><span class="p">);</span>
+    <span class="n">file</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+
+    <span class="k">delete</span><span class="p">[]</span> <span class="n">bmpBuffer</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">DXApp</span><span class="o">::</span><span class="n">SaveDeviceInfo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filePath</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">D3D_FEATURE_LEVEL</span> <span class="n">featureLevel</span> <span class="o">=</span> <span class="n">mDevice</span><span class="o">-&gt;</span><span class="n">GetFeatureLevel</span><span class="p">();</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">featureLevelString</span> <span class="o">=</span> <span class="s">"Direct3D "</span><span class="p">;</span>
+
+    <span class="k">switch</span> <span class="p">(</span><span class="n">featureLevel</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="k">case</span> <span class="n">D3D_FEATURE_LEVEL_9_1</span><span class="p">:</span>
+        <span class="n">featureLevelString</span> <span class="o">+=</span> <span class="s">"9.1"</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">D3D_FEATURE_LEVEL_9_2</span><span class="p">:</span>
+        <span class="n">featureLevelString</span> <span class="o">+=</span> <span class="s">"9.2"</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">D3D_FEATURE_LEVEL_9_3</span><span class="p">:</span>
+        <span class="n">featureLevelString</span> <span class="o">+=</span> <span class="s">"9.3"</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">D3D_FEATURE_LEVEL_10_0</span><span class="p">:</span>
+        <span class="n">featureLevelString</span> <span class="o">+=</span> <span class="s">"10."</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">D3D_FEATURE_LEVEL_10_1</span><span class="p">:</span>
+        <span class="n">featureLevelString</span> <span class="o">+=</span> <span class="s">"10.1"</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">D3D_FEATURE_LEVEL_11_0</span><span class="p">:</span>
+        <span class="n">featureLevelString</span> <span class="o">+=</span> <span class="s">"11.0"</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="n">D3D_FEATURE_LEVEL_11_1</span><span class="p">:</span>
+        <span class="n">featureLevelString</span> <span class="o">+=</span> <span class="s">"11.1"</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">ofstream</span> <span class="n">file</span><span class="p">(</span><span class="n">filePath</span><span class="p">);</span>
+    <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="n">featureLevelString</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">file</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+
+      	<h3>GLApp.h</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#pragma once
+#include "App3D.h"
+#include &lt;glew.h&gt;
+#include &lt;wglew.h&gt;
+#include &lt;gl\GL.h&gt;
+#include &lt;gl\GLU.h&gt;
+#include &lt;glext.h&gt;
+#include &lt;wglext.h&gt;
+#include "GLUtil.h"
+</span>
+<span class="k">class</span> <span class="nc">GLApp</span> <span class="o">:</span> <span class="k">public</span> <span class="n">App3D</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">GLApp</span><span class="p">(</span><span class="n">HINSTANCE</span> <span class="n">hInstance</span><span class="p">);</span>
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">GLApp</span><span class="p">();</span>
+
+    <span class="kt">bool</span> <span class="n">vSync</span><span class="p">;</span>
+
+<span class="k">protected</span><span class="o">:</span>
+    <span class="n">HDC</span>     <span class="n">mDeviceContext</span><span class="p">;</span>
+    <span class="n">HGLRC</span>   <span class="n">mGLRenderContext</span><span class="p">;</span>
+
+    <span class="k">virtual</span> <span class="kt">bool</span> <span class="n">InitScene</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Update</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="kt">void</span> <span class="n">Render</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">PFNWGLSWAPINTERVALEXTPROC</span>           <span class="n">wglSwapIntervalEXT</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">PFNWGLGETSWAPINTERVALEXTPROC</span>        <span class="n">wglGetSwapIntervalEXT</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">PFNWGLCREATECONTEXTATTRIBSARBPROC</span>   <span class="n">wglCreateContextAttribsARB</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="kt">bool</span> <span class="n">InitAPI</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">UpdateWindowTitle</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">SwapBuffer</span><span class="p">()</span> <span class="n">override</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">SaveSnapshot</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">file</span><span class="p">)</span> <span class="n">override</span><span class="p">;</span>
+    <span class="kt">void</span> <span class="n">SaveDeviceInfo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">file</span><span class="p">)</span> <span class="n">override</span><span class="p">;</span>
+    
+    <span class="kt">bool</span> <span class="n">WGLExtSupported</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">extName</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="n">SetVsync</span><span class="p">();</span>
+    <span class="kt">void</span> <span class="n">PrintVersion</span><span class="p">();</span>
+<span class="p">};</span></code></pre></figure>
+
+
+      	<h3>GLApp.cpp</h3>
+
+<figure class="highlight"><pre><code class="language-cpp" data-lang="cpp"><span class="cp">#include "GLApp.h"
+</span>
+<span class="n">GLApp</span><span class="o">::</span><span class="n">GLApp</span><span class="p">(</span><span class="n">HINSTANCE</span> <span class="n">hInstance</span><span class="p">)</span> <span class="o">:</span> <span class="n">App3D</span><span class="p">(</span><span class="n">hInstance</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">mAppTitle</span> <span class="o">=</span> <span class="s">"OpenGL App"</span><span class="p">;</span>
+    <span class="n">mWindowClass</span> <span class="o">=</span> <span class="s">"GLAPPWNDCLASS"</span><span class="p">;</span>
+    <span class="n">shaderPath</span> <span class="o">=</span> <span class="n">assetPath</span> <span class="o">+</span> <span class="s">"GLSL/"</span><span class="p">;</span>
+    <span class="n">mDeviceInfoFileName</span> <span class="o">=</span> <span class="s">"gl_device_info"</span><span class="p">;</span>
+
+    <span class="n">mDeviceContext</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+    <span class="n">mGLRenderContext</span> <span class="o">=</span> <span class="nb">nullptr</span><span class="p">;</span>
+
+    <span class="n">vSync</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">GLApp</span><span class="o">::~</span><span class="n">GLApp</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">wglMakeCurrent</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">wglDeleteContext</span><span class="p">(</span><span class="n">mGLRenderContext</span><span class="p">);</span>
+    <span class="n">ReleaseDC</span><span class="p">(</span><span class="n">mWindow</span><span class="p">,</span> <span class="n">mDeviceContext</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="n">GLApp</span><span class="o">::</span><span class="n">InitAPI</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">mDeviceContext</span> <span class="o">=</span> <span class="n">GetDC</span><span class="p">(</span><span class="n">mWindow</span><span class="p">);</span>
+
+    <span class="n">PIXELFORMATDESCRIPTOR</span> <span class="n">pfd</span><span class="p">;</span>
+    <span class="n">ZeroMemory</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pfd</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">PIXELFORMATDESCRIPTOR</span><span class="p">));</span>
+    <span class="n">pfd</span><span class="p">.</span><span class="n">nSize</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">PIXELFORMATDESCRIPTOR</span><span class="p">);</span>
+    <span class="n">pfd</span><span class="p">.</span><span class="n">nVersion</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">pfd</span><span class="p">.</span><span class="n">dwFlags</span> <span class="o">=</span> <span class="n">PFD_DRAW_TO_WINDOW</span> <span class="o">|</span> <span class="n">PFD_SUPPORT_OPENGL</span> <span class="o">|</span> <span class="n">PFD_DOUBLEBUFFER</span><span class="p">;</span>
+    <span class="n">pfd</span><span class="p">.</span><span class="n">iPixelType</span> <span class="o">=</span> <span class="n">PFD_TYPE_RGBA</span><span class="p">;</span>
+    <span class="n">pfd</span><span class="p">.</span><span class="n">cColorBits</span> <span class="o">=</span> <span class="mi">32</span><span class="p">;</span>
+    <span class="n">pfd</span><span class="p">.</span><span class="n">cDepthBits</span> <span class="o">=</span> <span class="mi">24</span><span class="p">;</span>
+    <span class="n">pfd</span><span class="p">.</span><span class="n">cStencilBits</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">format</span> <span class="o">=</span> <span class="n">ChoosePixelFormat</span><span class="p">(</span><span class="n">mDeviceContext</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pfd</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">SetPixelFormat</span><span class="p">(</span><span class="n">mDeviceContext</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pfd</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">MessageBox</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">"Error setting pixel format"</span><span class="p">,</span> <span class="s">"Error"</span><span class="p">,</span> <span class="n">MB_OK</span> <span class="o">|</span> <span class="n">MB_ICONERROR</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">mGLRenderContext</span> <span class="o">=</span> <span class="n">wglCreateContext</span><span class="p">(</span><span class="n">mDeviceContext</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">wglMakeCurrent</span><span class="p">(</span><span class="n">mDeviceContext</span><span class="p">,</span> <span class="n">mGLRenderContext</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">MessageBox</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">"Error creating and activatign render context"</span><span class="p">,</span> <span class="s">"Error"</span><span class="p">,</span> <span class="n">MB_OK</span> <span class="o">|</span> <span class="n">MB_ICONERROR</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">glewInit</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">MessageBox</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">"Error initializing GLEW"</span><span class="p">,</span> <span class="s">"Error"</span><span class="p">,</span> <span class="n">MB_OK</span> <span class="o">|</span> <span class="n">MB_ICONERROR</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">glViewport</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">GLsizei</span><span class="p">)</span><span class="n">mWidth</span><span class="p">,</span> <span class="p">(</span><span class="n">GLsizei</span><span class="p">)</span><span class="n">mHeight</span><span class="p">);</span>
+
+    <span class="n">SetVsync</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">GLApp</span><span class="o">::</span><span class="n">UpdateWindowTitle</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">ss</span><span class="p">;</span>
+    <span class="n">ss</span> <span class="o">&lt;&lt;</span> <span class="n">mAppTitle</span> <span class="o">&lt;&lt;</span> <span class="s">" | FPS "</span> <span class="o">&lt;&lt;</span> <span class="n">mFPS</span><span class="p">;</span>
+    <span class="n">SetWindowText</span><span class="p">(</span><span class="n">mWindow</span><span class="p">,</span> <span class="n">ss</span><span class="p">.</span><span class="n">str</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">GLApp</span><span class="o">::</span><span class="n">SwapBuffer</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">SwapBuffers</span><span class="p">(</span><span class="n">mDeviceContext</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">GLApp</span><span class="o">::</span><span class="n">SaveSnapshot</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filePath</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">byte</span> <span class="o">*</span><span class="n">bmpBuffer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">byte</span><span class="p">[</span><span class="n">mWidth</span> <span class="o">*</span> <span class="n">mHeight</span> <span class="o">*</span> <span class="mi">3</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">bmpBuffer</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+    <span class="n">glReadBuffer</span><span class="p">(</span><span class="n">GL_FRONT</span><span class="p">);</span>
+    <span class="n">glReadPixels</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mWidth</span><span class="p">,</span> <span class="n">mHeight</span><span class="p">,</span> <span class="n">GL_BGR</span><span class="p">,</span> <span class="n">GL_UNSIGNED_BYTE</span><span class="p">,</span> <span class="n">bmpBuffer</span><span class="p">);</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">ofstream</span> <span class="n">file</span><span class="p">(</span><span class="n">filePath</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">out</span> <span class="o">|</span> <span class="n">std</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">binary</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">file</span><span class="p">.</span><span class="n">is_open</span><span class="p">())</span> <span class="k">return</span><span class="p">;</span>
+
+    <span class="n">BITMAPFILEHEADER</span> <span class="n">bitmapFileHeader</span><span class="p">;</span>
+    <span class="n">bitmapFileHeader</span><span class="p">.</span><span class="n">bfType</span> <span class="o">=</span> <span class="mh">0x4D42</span><span class="p">;</span> <span class="c1">//"BM"
+</span>    <span class="n">bitmapFileHeader</span><span class="p">.</span><span class="n">bfSize</span> <span class="o">=</span> <span class="n">mWidth</span> <span class="o">*</span> <span class="n">mHeight</span> <span class="o">*</span> <span class="mi">3</span><span class="p">;</span>
+    <span class="n">bitmapFileHeader</span><span class="p">.</span><span class="n">bfReserved1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">bitmapFileHeader</span><span class="p">.</span><span class="n">bfReserved2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">bitmapFileHeader</span><span class="p">.</span><span class="n">bfOffBits</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">BITMAPFILEHEADER</span><span class="p">)</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">BITMAPINFOHEADER</span><span class="p">);</span>
+
+    <span class="n">BITMAPINFOHEADER</span> <span class="n">bitmapInfoHeader</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biSize</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">BITMAPINFOHEADER</span><span class="p">);</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biWidth</span> <span class="o">=</span> <span class="n">mWidth</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biHeight</span> <span class="o">=</span> <span class="n">mHeight</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biPlanes</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biBitCount</span> <span class="o">=</span> <span class="mi">24</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biCompression</span> <span class="o">=</span> <span class="n">BI_RGB</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biSizeImage</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biXPelsPerMeter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// ?
+</span>    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biYPelsPerMeter</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// ?
+</span>    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biClrUsed</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">bitmapInfoHeader</span><span class="p">.</span><span class="n">biClrImportant</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span> <span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bitmapFileHeader</span><span class="p">),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">bitmapFileHeader</span><span class="p">));</span>
+    <span class="n">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span> <span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">bitmapInfoHeader</span><span class="p">),</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">bitmapInfoHeader</span><span class="p">));</span>
+    <span class="n">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">char</span> <span class="o">*&gt;</span><span class="p">(</span><span class="n">bmpBuffer</span><span class="p">),</span> <span class="n">mWidth</span> <span class="o">*</span> <span class="n">mHeight</span> <span class="o">*</span> <span class="mi">3</span><span class="p">);</span>
+    <span class="n">file</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+
+    <span class="k">delete</span><span class="p">[]</span> <span class="n">bmpBuffer</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">GLApp</span><span class="o">::</span><span class="n">SaveDeviceInfo</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filePath</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">GLint</span> <span class="n">majorVersion</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">GLint</span> <span class="n">minorVersion</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">glGetIntegerv</span><span class="p">(</span><span class="n">GL_MAJOR_VERSION</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">majorVersion</span><span class="p">);</span>
+    <span class="n">glGetIntegerv</span><span class="p">(</span><span class="n">GL_MINOR_VERSION</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">minorVersion</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">glslVersion</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">glGetString</span><span class="p">(</span><span class="n">GL_SHADING_LANGUAGE_VERSION</span><span class="p">));</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">vendor</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">glGetString</span><span class="p">(</span><span class="n">GL_VENDOR</span><span class="p">));</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">renderer</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">glGetString</span><span class="p">(</span><span class="n">GL_RENDERER</span><span class="p">));</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">ofstream</span> <span class="n">file</span><span class="p">(</span><span class="n">filePath</span><span class="p">);</span>
+    <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">"OpenGL "</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">majorVersion</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">"."</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">minorVersion</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">"GLSL "</span> <span class="o">&lt;&lt;</span> <span class="n">glslVersion</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">"Vendor: "</span> <span class="o">&lt;&lt;</span> <span class="n">vendor</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">file</span> <span class="o">&lt;&lt;</span> <span class="s">"Renderer: "</span> <span class="o">&lt;&lt;</span> <span class="n">renderer</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">file</span><span class="p">.</span><span class="n">close</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// check if extension is supported
+</span><span class="kt">bool</span> <span class="n">GLApp</span><span class="o">::</span><span class="n">WGLExtSupported</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">extName</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">PFNWGLGETEXTENSIONSSTRINGEXTPROC</span> <span class="n">_wglGetExtensionsStringEXT</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="n">_wglGetExtensionsStringEXT</span> <span class="o">=</span> <span class="p">(</span><span class="n">PFNWGLGETEXTENSIONSSTRINGEXTPROC</span><span class="p">)</span><span class="n">wglGetProcAddress</span><span class="p">(</span><span class="s">"wglGetExtensionsStringEXT"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="n">strstr</span><span class="p">(</span><span class="n">_wglGetExtensionsStringEXT</span><span class="p">(),</span> <span class="n">extName</span><span class="p">.</span><span class="n">c_str</span><span class="p">())</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">GLApp</span><span class="o">::</span><span class="n">SetVsync</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">WGLExtSupported</span><span class="p">(</span><span class="s">"WGL_EXT_swap_control"</span><span class="p">))</span>
+    <span class="p">{</span>
+        <span class="n">wglSwapIntervalEXT</span> <span class="o">=</span> <span class="p">(</span><span class="n">PFNWGLSWAPINTERVALEXTPROC</span><span class="p">)</span><span class="n">wglGetProcAddress</span><span class="p">(</span><span class="s">"wglSwapIntervalEXT"</span><span class="p">);</span>
+        <span class="n">wglGetSwapIntervalEXT</span> <span class="o">=</span> <span class="p">(</span><span class="n">PFNWGLGETSWAPINTERVALEXTPROC</span><span class="p">)</span><span class="n">wglGetProcAddress</span><span class="p">(</span><span class="s">"wglGetSwapIntervalEXT"</span><span class="p">);</span>
+        <span class="n">wglSwapIntervalEXT</span><span class="p">(</span><span class="n">vSync</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+
+    </div>
+</div>
+
+    </div>
+
+    <footer>
+	<div class="container">
+		<ul>
+			<li>Copyright &copy;2016</li>
+			<li>Gregor Panič</li>
+			<li>-</li>
+			<li><a href="mailto:gregor.panic@gmail.com">Email</a></li>
+			<li><a href="http://github.com/gpanic">Github</a></li>
+			<li><a href="http://www.linkedin.com/in/gregorpanic">Linkedin</a></li>
+		</ul>
+	</div>
+</footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+
+  </body>
+
+</html>

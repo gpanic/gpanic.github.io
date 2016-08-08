@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Gregor Panič - Gameplay Programmer</title>
+  <meta name="description" content="">
+
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/monokai.css">
+  <link rel="canonical" href="http://gpanic.github.io/code_samples/welkin_road_object_culling.html">
+  <link rel="alternate" type="application/rss+xml" title="Gregor Panič - Gameplay Programmer" href="http://gpanic.github.io/feed.xml">
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,700,600italic,600,800,800italic,700italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+</head>
+
+
+  <body>
+
+    <header class="home-header">
+    <div class="container">
+        <div class="outer">
+            <div class="inner">
+                <div class="name">Gregor Panič</div>
+                <div class="title">Gameplay Programmer</div>
+                <div class="nav">
+                    <a class="btn btn-blue " href="/" role="button">Work</a>
+                    <a class="btn btn-blue " href="/projects.html" role="button">Projects</a>
+                    <a class="btn btn-blue " href="/about.html" role="button">About</a>
+                    <a class="btn btn-blue " href="/resume.html" role="button">Résumé</a>
+                    <a class="btn btn-blue " href="/code_samples.html" role="button">Code Samples</a>
+                    <!--<a class="btn btn-blue" href="mailto:gregor.panic@gmail.com" role="button">Contact</a>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!--
+<header class="home-header-2">
+    <div class="container">
+        <div class="title">
+            <div class="name">Gregor Panič</div>
+            <div class="job">Gameplay Programmer</div>
+        </div>
+        <div class="nav">
+            <a href="/" role="button">Work</a>
+            <a href="/about.html" role="button">About</a>
+            <a href="/resume.html" role="button">Resume</a>
+            <a href="mailto:gregor.panic@gmail.com" role="button">Contact</a>
+        </div>
+    </div>
+</header>
+-->
+    
+    <div class="content">
+        <div class="content-inner">
+    <div class="container">
+        <h1>Object culling</h1>
+
+        <h3>Project:</h3>
+        <p>
+            <a href="/projects/welkin_road.html">Welkin Road</a>
+        </p>
+
+        <h3>Programming language:</h3>
+        <p>
+        	C#
+        </p>
+
+        <h3>Engine:</h3>
+        <p>
+            Untiy 3D
+        </p>
+
+        <h3>Description</h3>
+        <p>
+            Sometimes objects or parts of objects need to be activated/deactivated (culled) based on some criterium such as distance. The abstract classes ObjectCuller and CulledObject allow any component of any object to be activated and deactivated based on a chosen criterum. They also allow the user to balance performance cost against frequency of updates by controlling the maximum number of objects that will be culled per frame. ObjectCuller represents a blueprint for handling CulledObjects. It is up to the concrete classes to choose which components of objects will be affected and in what way. An example of such concrete classes are ParticleSystemCuller and ParticleSystemCulledObject.
+      	</p>
+
+      	<h3>ObjectCuller.cs</h3>
+
+<figure class="highlight"><pre><code class="language-cs" data-lang="cs"><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">abstract</span> <span class="k">class</span> <span class="nc">ObjectCuller</span> <span class="p">:</span> <span class="n">MonoBehaviour</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="n">GameObject</span> <span class="n">objects</span><span class="p">;</span>
+    <span class="k">public</span> <span class="kt">float</span> <span class="n">objectsToCullPerFrame</span> <span class="p">=</span> <span class="m">1</span><span class="p">;</span>
+
+    <span class="c1">// concrete objects that inherit from CulledObject
+</span>    <span class="k">private</span> <span class="n">CulledObject</span><span class="p">[]</span> <span class="n">culledObjects</span><span class="p">;</span>
+    <span class="k">private</span> <span class="kt">int</span> <span class="n">culledObjectIndex</span><span class="p">;</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">Start</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">culledObjects</span> <span class="p">=</span> <span class="nf">GetCulledObjects</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">culledObjects</span><span class="p">.</span><span class="n">Length</span> <span class="p">&lt;=</span> <span class="m">0</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">enabled</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">Update</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="p">=</span> <span class="m">0</span><span class="p">;</span> <span class="n">i</span> <span class="p">&lt;</span> <span class="n">objectsToCullPerFrame</span><span class="p">;</span> <span class="p">++</span><span class="n">i</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">culledObjects</span><span class="p">[</span><span class="n">culledObjectIndex</span><span class="p">].</span><span class="nf">Cull</span><span class="p">();</span>
+
+            <span class="c1">// update index
+</span>            <span class="p">++</span><span class="n">culledObjectIndex</span><span class="p">;</span>
+            <span class="n">culledObjectIndex</span> <span class="p">%=</span> <span class="n">culledObjects</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// gets the concrete objects
+</span>    <span class="k">public</span> <span class="k">abstract</span> <span class="n">CulledObject</span><span class="p">[]</span> <span class="nf">GetCulledObjects</span><span class="p">();</span>
+
+<span class="p">}</span></code></pre></figure>
+
+
+    <h3>CulledObject.cs</h3>
+
+<figure class="highlight"><pre><code class="language-cs" data-lang="cs"><span class="k">public</span> <span class="k">abstract</span> <span class="k">class</span> <span class="nc">CulledObject</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">bool</span> <span class="n">Active</span> <span class="p">{</span> <span class="k">get</span> <span class="p">{</span> <span class="k">return</span> <span class="n">active</span><span class="p">;</span> <span class="p">}</span> <span class="p">}</span>
+
+    <span class="k">private</span> <span class="kt">bool</span> <span class="n">active</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+
+    <span class="c1">// to cull means to activate/deactivate objects
+</span>    <span class="k">public</span> <span class="k">void</span> <span class="nf">Cull</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(!</span><span class="n">active</span> <span class="p">&amp;&amp;</span> <span class="p">!</span><span class="nf">IsToBeCulled</span><span class="p">())</span>
+        <span class="p">{</span>
+            <span class="n">active</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+            <span class="nf">Activate</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">active</span> <span class="p">&amp;&amp;</span> <span class="nf">IsToBeCulled</span><span class="p">())</span>
+        <span class="p">{</span>
+            <span class="n">active</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+            <span class="nf">Deactivate</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// culling criterium
+</span>    <span class="k">public</span> <span class="k">abstract</span> <span class="kt">bool</span> <span class="nf">IsToBeCulled</span><span class="p">();</span>
+
+    <span class="k">protected</span> <span class="k">abstract</span> <span class="k">void</span> <span class="nf">Activate</span><span class="p">();</span>
+    <span class="k">protected</span> <span class="k">abstract</span> <span class="k">void</span> <span class="nf">Deactivate</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+
+    <h3>ParticleSystemCuller.cs</h3>
+
+<figure class="highlight"><pre><code class="language-cs" data-lang="cs"><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Collections.Generic</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">ParticleSystemCuller</span> <span class="p">:</span> <span class="n">ObjectCuller</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">float</span> <span class="n">drawDistance</span><span class="p">;</span>
+
+    <span class="c1">// limit search depths
+</span>    <span class="k">public</span> <span class="kt">int</span> <span class="n">searchDepth</span> <span class="p">=</span> <span class="m">1</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">override</span> <span class="n">CulledObject</span><span class="p">[]</span> <span class="nf">GetCulledObjects</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">GetCulledObjectsRecursive</span><span class="p">(</span><span class="n">objects</span><span class="p">.</span><span class="n">transform</span><span class="p">,</span> <span class="n">searchDepth</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// create a ParticleSystemCulledObject for every particle system
+</span>    <span class="k">private</span> <span class="n">CulledObject</span><span class="p">[]</span> <span class="nf">GetCulledObjectsRecursive</span><span class="p">(</span><span class="n">Transform</span> <span class="n">obj</span><span class="p">,</span> <span class="kt">int</span> <span class="n">depth</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="p">--</span><span class="n">depth</span><span class="p">;</span>
+        <span class="n">List</span><span class="p">&lt;</span><span class="n">CulledObject</span><span class="p">&gt;</span> <span class="n">culledObjs</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">CulledObject</span><span class="p">&gt;();</span>
+        <span class="k">foreach</span> <span class="p">(</span><span class="n">Transform</span> <span class="n">child</span> <span class="k">in</span> <span class="n">obj</span><span class="p">.</span><span class="n">transform</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">ParticleSystem</span> <span class="n">ps</span> <span class="p">=</span> <span class="n">child</span><span class="p">.</span><span class="n">GetComponent</span><span class="p">&lt;</span><span class="n">ParticleSystem</span><span class="p">&gt;();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">ps</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">ParticleSystemCulledObject</span> <span class="n">culledObject</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">ParticleSystemCulledObject</span><span class="p">();</span>
+                <span class="n">culledObject</span><span class="p">.</span><span class="n">player</span> <span class="p">=</span> <span class="n">GameObject</span><span class="p">.</span><span class="nf">FindGameObjectWithTag</span><span class="p">(</span><span class="n">Tags</span><span class="p">.</span><span class="n">player</span><span class="p">);</span>
+                <span class="n">culledObject</span><span class="p">.</span><span class="n">obj</span> <span class="p">=</span> <span class="n">child</span><span class="p">.</span><span class="n">gameObject</span><span class="p">;</span>
+                <span class="n">culledObject</span><span class="p">.</span><span class="n">drawDistance</span> <span class="p">=</span> <span class="n">drawDistance</span><span class="p">;</span>
+                <span class="n">culledObject</span><span class="p">.</span><span class="n">particleSystem</span> <span class="p">=</span> <span class="n">ps</span><span class="p">;</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">culledObject</span><span class="p">.</span><span class="nf">IsValid</span><span class="p">())</span>
+                <span class="p">{</span>
+                    <span class="n">culledObjs</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="n">culledObject</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">depth</span> <span class="p">&gt;=</span> <span class="m">1</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">culledObjs</span><span class="p">.</span><span class="nf">AddRange</span><span class="p">(</span><span class="nf">GetCulledObjectsRecursive</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">depth</span><span class="p">));</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">culledObjs</span><span class="p">.</span><span class="nf">ToArray</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+
+    <h3>ParticleSystemCulledObject.cs</h3>
+
+<figure class="highlight"><pre><code class="language-cs" data-lang="cs"><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">ParticleSystemCulledObject</span> <span class="p">:</span> <span class="n">CulledObject</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="n">GameObject</span> <span class="n">player</span><span class="p">;</span>
+    <span class="k">public</span> <span class="n">GameObject</span> <span class="n">obj</span><span class="p">;</span>
+    <span class="k">public</span> <span class="kt">float</span> <span class="n">drawDistance</span><span class="p">;</span>
+    <span class="k">public</span> <span class="n">ParticleSystem</span> <span class="n">particleSystem</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="kt">bool</span> <span class="nf">IsValid</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">player</span> <span class="p">!=</span> <span class="k">null</span> <span class="p">&amp;&amp;</span> <span class="n">obj</span> <span class="p">!=</span> <span class="k">null</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">override</span> <span class="kt">bool</span> <span class="nf">IsToBeCulled</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">// use distance as culling criterium
+</span>        <span class="k">return</span> <span class="n">Vector3</span><span class="p">.</span><span class="nf">Distance</span><span class="p">(</span><span class="n">player</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">position</span><span class="p">,</span> <span class="n">obj</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">position</span><span class="p">)</span> <span class="p">&gt;</span> <span class="n">drawDistance</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">protected</span> <span class="k">override</span> <span class="k">void</span> <span class="nf">Activate</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">particleSystem</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">particleSystem</span><span class="p">.</span><span class="nf">Play</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">protected</span> <span class="k">override</span> <span class="k">void</span> <span class="nf">Deactivate</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">particleSystem</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">particleSystem</span><span class="p">.</span><span class="nf">Stop</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+
+    </div>
+</div>
+
+    </div>
+
+    <footer>
+	<div class="container">
+		<ul>
+			<li>Copyright &copy;2016</li>
+			<li>Gregor Panič</li>
+			<li>-</li>
+			<li><a href="mailto:gregor.panic@gmail.com">Email</a></li>
+			<li><a href="http://github.com/gpanic">Github</a></li>
+			<li><a href="http://www.linkedin.com/in/gregorpanic">Linkedin</a></li>
+		</ul>
+	</div>
+</footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+
+  </body>
+
+</html>
